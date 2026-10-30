@@ -1,6 +1,6 @@
 # Invites
 
-Event invites on **invite.ashleshpandey.com.np**, hosted on GitHub Pages from `pandey407/engagement`.
+Event invites on **invite.ashleshpandey.com.np**, hosted on GitHub Pages from `pandey407/invitations`.
 The bare domain is intentionally blank; each event lives on its own path, with one link per side:
 
 | Link | Who sends it | Names | Closing |
