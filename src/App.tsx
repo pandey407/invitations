@@ -4,8 +4,8 @@ import { Envelope } from './envelope/Envelope'
 import { resolve, type Side } from './events'
 import { route } from './route'
 
-// The shell: every event opens with the same envelope (src/envelope); the invite inside is each event's own
-// design (src/events/<event>/Invite.tsx), loaded only on that event's pages.
+// The shell: events with a shloka open with the shared envelope (src/envelope); the invite itself is each
+// event's own design (src/events/<event>/Invite.tsx), loaded only on that event's pages.
 type InvitePage = ComponentType<{ opened: boolean; revealing: boolean }>
 const pages = import.meta.glob<{ default: InvitePage }>('./events/*/Invite.tsx')
 const lazyPages: Record<string, InvitePage> = Object.fromEntries(
@@ -21,14 +21,15 @@ export default function App() {
 function Shell({ event, side }: { event: string; side: Side }) {
   const text = resolve(event, side)
   const Page = lazyPages[event]
-  // ?open skips the envelope (handy for testing or a direct link to the details).
-  const [opened, setOpened] = useState(() => new URLSearchParams(location.search).has('open'))
+  // Events without a shloka have no envelope; ?open skips it (handy for testing or a direct link to the details).
+  const hasEnvelope = 'shloka' in text
+  const [opened, setOpened] = useState(() => !hasEnvelope || new URLSearchParams(location.search).has('open'))
   // The invite's fade-ups start as the envelope *begins* to open, so it rises into view between the flaps.
   const [revealing, setRevealing] = useState(opened)
 
   return (
     <LangProvider>
-      {!opened && (
+      {!opened && hasEnvelope && (
         <Envelope
           shloka={text.shloka}
           invocation={text.invocation}

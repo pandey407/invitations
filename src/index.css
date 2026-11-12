@@ -2,6 +2,7 @@
 /* The shared envelope, then each event's own styles (add new events here). */
 @import './envelope/envelope.css';
 @import './events/engagement/theme.css';
+@import './events/mehendi/theme.css';
 
 @theme {
   /* Palette sampled from the theme sheet swatches. */

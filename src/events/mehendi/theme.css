@@ -1,0 +1,88 @@
+/* Mehendi invite: a painted Mughal garden on sage plaster, with blush lotus and peony blooms and antique gold.
+   Type is classic and quiet: one deep leaf green, a flowing script for the big words, a serif for the rest. */
+@theme {
+  --color-leaf: #3d5230;
+  --color-gold: #a5823a;
+  --color-cream: #f6eedf;
+  --font-script: 'Great Vibes', 'Kalam', cursive; /* Great Vibes has no Devanagari, so Nepali falls through to Kalam */
+}
+
+/* Where one painted scene meets the next, each fades into the plaster colour behind it. */
+.fade-bottom {
+  mask-image: linear-gradient(to bottom, #000 92%, transparent);
+}
+.fade-top {
+  mask-image: linear-gradient(to top, #000 80%, transparent);
+}
+.fade-both {
+  mask-image: linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent);
+}
+/* On screens wider than the column, its sides dissolve into the plaster behind the page. */
+@media (min-width: 32rem) {
+  .fade-sides {
+    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  }
+}
+
+/* The dancing-shoes badge: tilted, swaying side to side with a little hop every few seconds. */
+.shoe-dance {
+  rotate: -3deg;
+  animation: shoe-dance 2.8s ease-in-out infinite;
+}
+@keyframes shoe-dance {
+  0%, 100% { rotate: -3deg; translate: 0 0; }
+  20% { rotate: 3deg; translate: 0 -0.35rem; }
+  40% { rotate: -3deg; translate: 0 0; }
+  55% { rotate: 2deg; translate: 0 -0.2rem; }
+  70% { rotate: -3deg; translate: 0 0; }
+}
+
+/* Tapped: a quick twirl with a little jump, then back to the sway. */
+.shoe-spin {
+  animation: shoe-spin 0.9s cubic-bezier(0.3, 0, 0.3, 1);
+}
+@keyframes shoe-spin {
+  0% { rotate: -3deg; scale: 1; }
+  40% { rotate: 180deg; scale: 1.12; translate: 0 -0.6rem; }
+  100% { rotate: 357deg; scale: 1; translate: 0 0; }
+}
+
+/* A soft band of light sweeping across the badge every few seconds. */
+.shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.7) 50%, transparent 70%);
+  translate: -110% 0;
+  animation: shimmer 4.5s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%, 55% { translate: -110% 0; }
+  85%, 100% { translate: 110% 0; }
+}
+
+/* Music notes rising from the badge, swaying as they go, and fading out. */
+.note-float {
+  opacity: 0;
+  animation: note-float 3.4s ease-out infinite;
+}
+@keyframes note-float {
+  0% { opacity: 0; translate: 0 0; rotate: -10deg; }
+  15% { opacity: 0.9; }
+  50% { translate: 0.5rem -2.2rem; rotate: 8deg; }
+  100% { opacity: 0; translate: -0.4rem -4.5rem; rotate: -6deg; }
+}
+
+/* Bloom sprays stirring in a breeze. */
+.sway {
+  animation: sway 5s ease-in-out infinite alternate;
+}
+@keyframes sway {
+  from { rotate: -2deg; }
+  to { rotate: 2deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shoe-dance, .shoe-spin, .sway, .shimmer::after { animation: none; }
+  .note-float { display: none; }
+}

@@ -1,5 +1,6 @@
 // This event's text for the side being viewed (/engagement, /engagement/aarusha, /engagement/ashlesh).
 import { route } from '../../route'
-import { resolve } from '../index'
+import { invite as resolveInvite } from '../index'
+import { engagement } from './content'
 
-export const invite = resolve('engagement', route?.side ?? 'both')
+export const invite = resolveInvite(engagement, route?.side ?? 'both')
