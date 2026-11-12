@@ -108,12 +108,15 @@ export function Details() {
       </h2>
       <Rule className="mt-2 mb-[16cqw] w-[60%] text-[3.5cqw]" />
       <div data-reveal className="relative flex w-full flex-col gap-6 rounded-3xl bg-cream/80 px-4 py-6 shadow-sm shadow-leaf/10">
-        {/* Bloom sprays peeking out from behind two corners of the card, and a peacock perched on its top edge. */}
-        <img src={bloomUrl} alt="" className="sway pointer-events-none absolute -top-[7cqw] -left-[9cqw] -z-10 w-[24cqw] origin-bottom-left" />
-        <span className="pointer-events-none absolute -right-[9cqw] -bottom-[7cqw] -z-10 w-[24cqw] -scale-100">
+        {/* Bloom sprays peeking out from behind two corners of the card, and a peacock perched on its top-left
+            edge, turned to face the other way from the closing scene's peacock. */}
+        <span className="pointer-events-none absolute -top-[7cqw] -right-[9cqw] -z-10 w-[24cqw] -scale-x-100">
           <img src={bloomUrl} alt="" className="sway block w-full origin-bottom-left" />
         </span>
-        <img src={peacockUrl} alt="" className="pointer-events-none absolute -top-[18cqw] -right-[3cqw] w-[15cqw]" />
+        <span className="pointer-events-none absolute -bottom-[7cqw] -left-[9cqw] -z-10 w-[24cqw] -scale-y-100">
+          <img src={bloomUrl} alt="" className="sway block w-full origin-bottom-left" />
+        </span>
+        <img src={peacockUrl} alt="" className="pointer-events-none absolute -top-[18cqw] -left-[3cqw] w-[15cqw] -scale-x-100" />
         <div>
           <Label text={invite.details.dateTimeLabel} />
           <Line strong>{t(invite.dateLabel)}</Line>
