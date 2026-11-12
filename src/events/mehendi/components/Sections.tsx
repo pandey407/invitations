@@ -24,6 +24,18 @@ const Rule = ({ className = '', children }: { className?: string; children?: Rea
   </span>
 )
 
+// Bloom sprays in a page's two top corners (the opening and the closing), flush with its edges and growing in toward its words.
+const Corners = ({ className }: { className: string }) => (
+  <>
+    <span className={`pointer-events-none absolute left-0 w-[34cqw] -scale-y-100 ${className}`}>
+      <img src={bloomUrl} alt="" width={682} height={700} className="sway block w-full origin-bottom-left" />
+    </span>
+    <span className={`pointer-events-none absolute right-0 w-[34cqw] -scale-100 ${className}`}>
+      <img src={bloomUrl} alt="" width={682} height={700} className="sway block w-full origin-bottom-left" />
+    </span>
+  </>
+)
+
 export function Hero() {
   const { lang, t } = useLang()
   const en = lang === 'en'
@@ -39,7 +51,8 @@ export function Hero() {
   )
   return (
     <header className="relative">
-      <img src={heroUrl} alt="" className="fade-bottom block w-full" />
+      <img src={heroUrl} alt="" width={1200} height={1789} className="fade-bottom block w-full" />
+      <Corners className="top-0" />
       {/* Inside the arch's cream window. */}
       <div className="absolute inset-x-[28.5%] top-[25%] bottom-[19%] flex flex-col items-center justify-center text-center text-leaf">
         <p className={`${caps(en)} ${en ? 'text-[2.1cqw]' : 'text-[3.2cqw]'}`}>{t(invite.kicker)}</p>
@@ -108,15 +121,13 @@ export function Details() {
       </h2>
       <Rule className="mt-2 mb-[16cqw] w-[60%] text-[3.5cqw]" />
       <div data-reveal className="relative flex w-full flex-col gap-6 rounded-3xl bg-cream/80 px-4 py-6 shadow-sm shadow-leaf/10">
-        {/* Bloom sprays peeking out from behind two corners of the card, and a peacock perched on its top-left
-            edge, turned to face the other way from the closing scene's peacock. */}
-        <span className="pointer-events-none absolute -top-[7cqw] -right-[9cqw] -z-10 w-[24cqw] -scale-x-100">
-          <img src={bloomUrl} alt="" className="sway block w-full origin-bottom-left" />
+        {/* A peacock perched on the card's top-left edge, turned to face the other way from the closing scene's. */}
+        <span aria-hidden className="pointer-events-none absolute -top-[18cqw] -left-[3cqw] w-[15cqw] -scale-x-100">
+          {/* Two copies of the bird: one clipped to its body and legs, held still; one clipped to its tail, swishing
+              slowly from where the tail meets the body. */}
+          <img src={peacockUrl} alt="" width={385} height={900} className="peacock-body block w-full" />
+          <img src={peacockUrl} alt="" width={385} height={900} className="peacock-tail absolute inset-0 w-full" />
         </span>
-        <span className="pointer-events-none absolute -bottom-[7cqw] -left-[9cqw] -z-10 w-[24cqw] -scale-y-100">
-          <img src={bloomUrl} alt="" className="sway block w-full origin-bottom-left" />
-        </span>
-        <img src={peacockUrl} alt="" className="pointer-events-none absolute -top-[18cqw] -left-[3cqw] w-[15cqw] -scale-x-100" />
         <div>
           <Label text={invite.details.dateTimeLabel} />
           <Line strong>{t(invite.dateLabel)}</Line>
@@ -178,14 +189,10 @@ export function Closing() {
   const { lang, t } = useLang()
   return (
     <footer className="relative text-leaf">
-      <img src={closingUrl} alt="" className="fade-top block w-full" />
+      <img src={closingUrl} alt="" width={1200} height={1789} className="fade-top block w-full" />
+      <Corners className="top-[3%]" />
       {/* In the open sage sky above the chhatri. */}
-      <div data-reveal className="absolute inset-x-[12%] top-[13%] isolate flex flex-col items-center text-center">
-        {/* Bloom sprays framing the closing words from behind, top-left and bottom-right. */}
-        <img src={bloomUrl} alt="" className="sway pointer-events-none absolute -top-[11cqw] -left-[8cqw] -z-10 w-[28cqw] origin-bottom-left" />
-        <span className="pointer-events-none absolute -right-[8cqw] -bottom-[11cqw] -z-10 w-[28cqw] -scale-100">
-          <img src={bloomUrl} alt="" className="sway block w-full origin-bottom-left" />
-        </span>
+      <div data-reveal className="absolute inset-x-[12%] top-[13%] flex flex-col items-center text-center">
         <p className={`font-script leading-tight ${lang === 'en' ? 'text-[12cqw]' : 'text-[10cqw] font-bold'}`}>{t(invite.closing)}</p>
         <Rule className="mt-3 w-[45%] text-[3.5cqw]" />
         <p className={`mt-3 max-w-[80%] leading-snug text-balance ${lang === 'en' ? 'text-[4.6cqw] italic' : 'text-[4.2cqw]'}`}>{t(invite.closingNote)}</p>

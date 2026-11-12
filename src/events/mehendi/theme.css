@@ -73,6 +73,22 @@
   100% { opacity: 0; translate: -0.4rem -4.5rem; rotate: -6deg; }
 }
 
+/* The card's peacock: its tail swishes from where it meets the body, while the head, body and legs keep still.
+   The two clips overlap in a band along the seam (a few percent of the bird), so as the tail swings, the still
+   layer underneath fills in wherever its edge pulls away: no gaps. */
+.peacock-body {
+  clip-path: polygon(0 0, 100% 0, 100% 29%, 38% 44%, 38% 54%, 0 54%);
+}
+.peacock-tail {
+  clip-path: polygon(34% 38%, 100% 23%, 100% 100%, 0 100%, 0 52%, 34% 52%);
+  transform-origin: 42% 36%;
+  animation: peacock-tail 3.6s ease-in-out infinite alternate;
+}
+@keyframes peacock-tail {
+  from { rotate: -2.5deg; }
+  to { rotate: 3deg; }
+}
+
 /* Bloom sprays stirring in a breeze. */
 .sway {
   animation: sway 5s ease-in-out infinite alternate;
@@ -83,6 +99,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .shoe-dance, .shoe-spin, .sway, .shimmer::after { animation: none; }
+  .shoe-dance, .shoe-spin, .sway, .shimmer::after, .peacock-tail { animation: none; }
   .note-float { display: none; }
 }
