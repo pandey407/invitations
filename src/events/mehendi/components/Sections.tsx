@@ -94,11 +94,11 @@ function Line({ children, strong }: { children: ReactNode; strong?: boolean }) {
 
 // Music notes drifting up from the dancing-shoes badge, staggered so one is always rising.
 const NOTES = [
-  { glyph: '♪', left: '8%', size: '1.1rem', delay: '0s' },
-  { glyph: '♫', left: '30%', size: '1.35rem', delay: '1.1s' },
-  { glyph: '♪', left: '62%', size: '1rem', delay: '2.2s' },
-  { glyph: '♫', left: '86%', size: '1.2rem', delay: '0.6s' },
-  { glyph: '♪', left: '48%', size: '0.95rem', delay: '2.8s' },
+  { glyph: '♪', left: '6%', size: '1.7rem', delay: '0s' },
+  { glyph: '♫', left: '28%', size: '2.1rem', delay: '1.1s' },
+  { glyph: '♪', left: '60%', size: '1.6rem', delay: '2.2s' },
+  { glyph: '♫', left: '84%', size: '1.9rem', delay: '0.6s' },
+  { glyph: '♪', left: '46%', size: '1.5rem', delay: '2.8s' },
 ]
 
 export function Details() {

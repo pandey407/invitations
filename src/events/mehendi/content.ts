@@ -37,7 +37,7 @@ export const mehendi = {
   ceremony: { np: 'मेहन्दी र संगीत उत्सवमा', en: 'Mehendi & Sangeet' },
   of: { np: '', en: 'of' },
   possessive: { np: 'को', en: "'s" }, // "आरुषाको मेहन्दी र संगीत" / "Aarusha's Mehendi & Sangeet" (also the page title)
-  tagline: { np: 'हातमा मेहन्दी, ओठमा गीत, पाउमा नाच!', en: 'Henna on our hands, music in the air and dancing all evening!' },
+  tagline: { np: 'रंग, रमाइलो र रौनक — आउनुहोस्, सँगै नाचौं!', en: 'Henna on our hands, music in the air and dancing all evening!' },
 
   // ── When & where ───────────────────────────────────────────────────────────────────
   details: {
