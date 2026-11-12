@@ -31,10 +31,10 @@ export const mehendi = {
 
   // ── Opening arch ───────────────────────────────────────────────────────────────────
   // English reads: kicker / invitation / Henna Hues / Mehendi & Sangeet / of / Aarusha / tagline
-  // Nepali reads:  kicker / आरुषाको / मेहन्दीका रंग / मेहन्दी र संगीत उत्सवमा / invitation / tagline
+  // Nepali reads:  kicker / आरुषाको / मेहन्दीका रंग / मेहन्दी र संगीत / tagline
   kicker: { np: 'मेहन्दी, गीत र नाच', en: 'Henna, music & dancing' },
-  invitation: { np: 'हार्दिक निमन्त्रणा', en: 'With great joy, we invite you to' },
-  ceremony: { np: 'मेहन्दी र संगीत उत्सवमा', en: 'Mehendi & Sangeet' },
+  invitation: { np: '', en: 'With great joy, we invite you to' }, // English only: the Nepali reads as an invitation already
+  ceremony: { np: 'मेहन्दी र संगीत', en: 'Mehendi & Sangeet' },
   of: { np: '', en: 'of' },
   possessive: { np: 'को', en: "'s" }, // "आरुषाको मेहन्दी र संगीत" / "Aarusha's Mehendi & Sangeet" (also the page title)
   tagline: { np: 'रंग, रमाइलो र रौनक — आउनुहोस्, सँगै नाचौं!', en: 'Henna on our hands, music in the air and dancing all evening!' },

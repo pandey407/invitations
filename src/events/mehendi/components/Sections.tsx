@@ -66,7 +66,7 @@ export function Hero() {
             <p className="font-script text-[11cqw] leading-none">{t(invite.couple.bride)}</p>
           </>
         ) : (
-          // आरुषाको / मेहन्दीका रंग / मेहन्दी र संगीत उत्सवमा / हार्दिक निमन्त्रणा
+          // आरुषाको / मेहन्दीका रंग / मेहन्दी र संगीत
           <>
             <p className="font-script text-[7cqw] font-bold">
               {t(invite.couple.bride)}
@@ -74,7 +74,6 @@ export function Hero() {
             </p>
             {occasion}
             <Rule className="my-[2cqw] w-[55%] text-[3cqw]" />
-            <p className="text-[3.6cqw] leading-snug">{t(invite.invitation)}</p>
           </>
         )}
         <p className={`mt-[2.5cqw] max-w-[88%] leading-snug text-balance ${en ? 'text-[3cqw] italic' : 'text-[3.2cqw]'}`}>{t(invite.tagline)}</p>
