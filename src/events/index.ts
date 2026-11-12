@@ -62,7 +62,14 @@ export function invite<E extends Event>(e: E, side: Side) {
     partnerOne: first,
     partnerTwo: second,
     ...s, // that side's path, name order and (if the event has one) its sign-off line
-    meta: { ...titles, url: e.siteUrl + path, image: `${e.siteUrl}previews/${e.slug}-${side}.jpg` },
+    meta: {
+      ...titles,
+      url: e.siteUrl + path,
+      image: `${e.siteUrl}previews/${e.slug}-${side}.jpg`,
+      // The browser-tab icon and toolbar colour: the event's own, or the engagement's red and marigold.
+      icon: `/${(e as { icon?: string }).icon ?? 'favicon.svg'}`,
+      theme: (e as { themeColor?: string }).themeColor ?? '#77142a',
+    },
   }
 }
 export type Invite = ReturnType<typeof resolve>

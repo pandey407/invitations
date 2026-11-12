@@ -8,6 +8,8 @@
 export const mehendi = {
   slug: 'mehendi', // the URL path: /mehendi
   siteUrl: 'https://invite.ashleshpandey.com.np/',
+  icon: 'favicon-mehendi.svg', // browser-tab icon (public/): a pink lotus on sage
+  themeColor: '#7d8c63', // phone browser toolbar: sage
   // Google Fonts for this event's design (script: Great Vibes, and Kalam for Nepali; text: Cormorant Garamond + Noto Serif Devanagari)
   fonts:
     'https://fonts.googleapis.com/css2?family=Great+Vibes&family=Kalam:wght@700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap',

@@ -18,6 +18,8 @@ function fill(html: string, path: string) {
     DESCRIPTION: meta.description,
     URL: meta.url,
     IMAGE: meta.image,
+    ICON: meta.icon,
+    THEME: meta.theme,
     FONTS: fonts,
   }
   return html.replace(/%([A-Z_]+)%/g, (all, key: string) => (key in values ? escape(values[key]) : all))
