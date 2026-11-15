@@ -66,7 +66,7 @@ export function Hero() {
             <p className="font-script text-[11cqw] leading-none">{t(invite.couple.bride)}</p>
           </>
         ) : (
-          // आरुषाको / मेहन्दीका रंग / मेहन्दी र संगीत
+          // आरुषाको / मेहन्दीको रंग / मेहन्दी र संगीत
           <>
             <p className="font-script text-[7cqw] font-bold">
               {t(invite.couple.bride)}

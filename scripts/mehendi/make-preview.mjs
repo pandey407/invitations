@@ -15,7 +15,7 @@ const [day, monthYear] = [invite.dateLabel.np.split(',')[0], invite.dateLabel.en
 const T = {
   kicker: invite.kicker.en.toUpperCase(),
   name: invite.headline.map((l) => l.en).join(' '), // Henna Hues
-  nameNp: invite.headline.map((l) => l.np).join(' '), // मेहन्दीका रंग
+  nameNp: invite.headline.map((l) => l.np).join(' '), // मेहन्दीको रंग
   occasionEn: `${invite.couple.bride.en}${invite.possessive.en} ${invite.occasion.en}`.toUpperCase(),
   occasionNp: `${invite.couple.bride.np}${invite.possessive.np} ${invite.occasion.np}`,
   date: `${day}  ·  ${monthYear.toUpperCase()}`, // मंसिर ७  ·  23 NOVEMBER 2026

@@ -27,13 +27,13 @@ export const mehendi = {
   occasion: { np: 'मेहन्दी र संगीत', en: 'Mehendi & Sangeet' }, // the page title and link preview
   // The event's name: the two big script lines in the arch.
   headline: [
-    { np: 'मेहन्दीका', en: 'Henna' },
+    { np: 'मेहन्दीको', en: 'Henna' },
     { np: 'रंग', en: 'Hues' },
   ],
 
   // ── Opening arch ───────────────────────────────────────────────────────────────────
   // English reads: kicker / invitation / Henna Hues / Mehendi & Sangeet / of / Aarusha / tagline
-  // Nepali reads:  kicker / आरुषाको / मेहन्दीका रंग / मेहन्दी र संगीत / tagline
+  // Nepali reads:  kicker / आरुषाको / मेहन्दीको रंग / मेहन्दी र संगीत / tagline
   kicker: { np: 'मेहन्दी, गीत र नाच', en: 'Henna, music & dancing' },
   invitation: { np: '', en: 'With great joy, we invite you to' }, // English only: the Nepali reads as an invitation already
   ceremony: { np: 'मेहन्दी र संगीत', en: 'Mehendi & Sangeet' },
