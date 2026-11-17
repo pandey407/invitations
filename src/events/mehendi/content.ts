@@ -18,7 +18,7 @@ export const mehendi = {
   name: 'Henna Hues', // the event's own name: leads the page title and link preview
   couple: {
     bride: { np: 'आरुषा', en: 'Aarusha' },
-    groom: { np: 'अश्लेष', en: 'Ashlesh' },
+    groom: { np: 'अस्लेष', en: 'Ashlesh' },
   },
   sides: {
     both: { path: '', first: 'bride' },

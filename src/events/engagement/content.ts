@@ -18,7 +18,7 @@ export const engagement = {
   // ── Who is inviting: name order and closing line per side ───────────────────────────
   couple: {
     bride: { np: 'आरुषा', en: 'Aarusha' },
-    groom: { np: 'अश्लेष', en: 'Ashlesh' },
+    groom: { np: 'अस्लेष', en: 'Ashlesh' },
   },
   sides: {
     both: { path: '', first: 'bride', familyLine: { np: 'विनीत: दुवै परिवार', en: 'With love, from both our families' } },
