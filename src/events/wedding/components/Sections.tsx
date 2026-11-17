@@ -79,7 +79,7 @@ export function Hero() {
         <p className={`my-[2cqw] font-display text-kagaz-gold ${en ? 'text-[6cqw] italic' : 'text-[5cqw]'}`}>{t(invite.and)}</p>
         <p className={name}>{t(invite.partnerTwo)}</p>
         <Rule className="mt-[5cqw] mb-[3cqw] w-[55%] text-[3cqw]" />
-        <p className={`leading-snug text-balance ${en ? 'text-[3.6cqw] italic' : 'text-[3.6cqw]'}`}>{t(invite.invitation)}</p>
+        <p className={`leading-snug text-balance ${en ? 'text-[3.6cqw] italic' : 'text-[3.8cqw]'}`}>{t(invite.invitation)}</p>
       </div>
       <BananaCorners />
     </header>

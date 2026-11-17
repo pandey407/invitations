@@ -3,6 +3,7 @@
 @theme {
   --color-kagaz-ink: #5e1f22; /* deep maroon lettering on the soft rose envelope */
   --color-kagaz-gold: #9a6f24; /* antique gold: the चु: stamp */
+  --font-nimantrana: 'Yatra One', 'Laila', serif; /* the envelope's flowing निमन्त्रणा */
 }
 
 /* The lokta texture (assets/lokta.webp, made neutral grey so it takes any tint) multiplied with a colour: the paper's
@@ -17,10 +18,10 @@
   background: var(--lokta) 0 0 / 640px, #d8a299;
   background-blend-mode: multiply;
 }
-/* The sheet's two halves, which slide apart as the cloths come in. The right half's paper carries on exactly where
-   the left's leaves off (the envelope sets --halfw), so they read as one sheet. */
-.kagaz-right {
-  background-position: calc(2px - var(--halfw, 50vw)) 0, 0 0; /* it's 2px wider, overlapping the left half: no gap */
+/* The envelope opening: a soft-edged round hole in the paper, centred on the knot, growing (--hole, its radius) as the
+   petals spread, until the invite behind is uncovered. */
+.kagaz-reveal {
+  mask-image: radial-gradient(circle at 50% 50%, transparent var(--hole, 0px), #000 calc(var(--hole, 0px) + 56px));
 }
 
 /* The gathbandhan video (TieVideo, 16:9) or the tied knot, its cloths (52% down the frame) centred on the knot's band.

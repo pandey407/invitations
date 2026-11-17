@@ -18,9 +18,10 @@ export const reception = {
     },
   },
   kicker: { np: 'शुभ विवाहको प्रीतिभोज', en: 'The Wedding Reception of' },
+  // under the names in the arch (no सपरिवार: the चु: on the envelope says who's invited)
   invitation: {
-    np: 'हाम्रो विवाहको उपलक्ष्यमा आयोजित प्रीतिभोजमा तपाईंलाई सपरिवार हार्दिक निमन्त्रणा गर्दछौं',
-    en: 'Together with our families, we joyfully invite you to celebrate our wedding reception',
+    np: 'हाम्रो प्रीतिभोजमा यहाँको उपस्थिति र आशीर्वादको अपेक्षा गर्दछौं',
+    en: 'We look forward to your presence and blessings at our reception',
   },
   showSindoor: false, // the sindoor box and potey belong to the wedding ceremony
 

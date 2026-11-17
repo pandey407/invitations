@@ -12,9 +12,9 @@
 export const wedding = {
   slug: 'wedding', // the URL path: /wedding
   siteUrl: 'https://invite.ashleshpandey.com.np/',
-  // Google Fonts for this event's design (names: Parisienne, and Laila for Nepali; text: Cormorant Garamond + Noto Serif Devanagari)
+  // Google Fonts for this event's design (envelope's निमन्त्रणा: Yatra One; the चु: stamp: Kalam; names: Parisienne, and Laila for Nepali; text: Cormorant Garamond + Noto Serif Devanagari)
   fonts:
-    'https://fonts.googleapis.com/css2?family=Parisienne&family=Laila:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Serif+Devanagari:wght@400;500;600&display=swap',
+    'https://fonts.googleapis.com/css2?family=Yatra+One&family=Kalam:wght@700&family=Parisienne&family=Laila:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Serif+Devanagari:wght@400;500;600&display=swap',
   themeColor: '#cf9b93', // phone browser toolbar: the envelope's soft rose
 
   couple: {
@@ -45,13 +45,15 @@ export const wedding = {
   // Sanskrit prayers: shown as written in both languages. Under the knot, then the invocation.
   shloka: ['वक्रतुण्ड महाकाय सूर्यकोटि समप्रभ ।', 'निर्विघ्नं कुरु मे देव सर्वकार्येषु सर्वदा ॥'],
   invocation: 'श्री गणेशाय नमः',
-  openLabel: 'Open invitation', // read out by screen readers for the knot button
+  nimantrana: 'निमन्त्रणा', // in a flowing calligraphic hand over the guest's name
+  openLabel: 'Open invitation', // read out by screen readers for the tap-to-open button
 
   // ── Opening (inside the gold arch, bells above) ────────────────────────────────────
   kicker: { np: 'शुभ विवाह', en: 'The Wedding of' },
+  // under the names in the arch (no सपरिवार: the चु: on the envelope says who's invited)
   invitation: {
-    np: 'हाम्रो विवाहको शुभ अवसरमा तपाईंलाई सपरिवार हार्दिक निमन्त्रणा गर्दछौं',
-    en: 'Together with our families, we joyfully invite you to celebrate our wedding',
+    np: 'यस मंगल घडीमा यहाँको आशीर्वादको अपेक्षा गर्दछौं',
+    en: 'We seek your blessings on this auspicious day',
   },
 
   // ── Saptapadi (the seven steps) ────────────────────────────────────────────────────
@@ -76,8 +78,8 @@ export const wedding = {
       title: { np: 'जन्ती प्रस्थान', en: 'Janti Procession' },
       date: { np: 'मंसिर ९, २०८३ बुधवार', en: 'Wednesday, 25 November 2026' },
       time: { np: 'बिहान ८:३० बजे', en: '8:30 AM' },
-      place: { np: 'निजी निवास, रानीबारी', en: 'Our home, Ranibari' },
-      address: { np: '', en: '' },
+      place: { np: 'निजी निवास', en: 'Niji Niwas' },
+      address: { np: 'रानीबारी, काठमाडौं', en: 'Ranibari, Kathmandu' },
       mapLink: 'https://maps.app.goo.gl/odHA4YXdjfb45rLc9',
     },
     ceremony: {

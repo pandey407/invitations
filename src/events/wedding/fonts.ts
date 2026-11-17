@@ -7,6 +7,8 @@ const allText = (value: unknown): string =>
   typeof value === 'string' ? value : Array.isArray(value) ? value.map(allText).join(' ') : value && typeof value === 'object' ? Object.values(value).map(allText).join(' ') : ''
 
 const FACES = [
+  '400 1em "Yatra One"',
+  '700 1em "Kalam"',
   '400 1em "Parisienne"',
   '400 1em "Laila"',
   '600 1em "Laila"',

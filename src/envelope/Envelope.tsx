@@ -137,11 +137,19 @@ export function Envelope({ shloka, invocation, openLabel, onOpen, onOpenStart, g
 
 // The चु: hand stamp: gold ink, no border, slightly tilted, its ink broken up a little like a rubber stamp's.
 // Placed and coloured by the envelope it sits on (`className`); here, just above the seam beside the seal.
-export function ChuStamp({ pressed, className = 'right-[5%] bottom-[calc(50%+0.25rem)] w-[min(32vw,8.5rem)] text-gold-light' }: { pressed: boolean; className?: string }) {
+export function ChuStamp({
+  pressed,
+  ring = false,
+  className = 'right-[5%] bottom-[calc(50%+0.25rem)] w-[min(32vw,8.5rem)] text-gold-light',
+}: {
+  pressed: boolean
+  ring?: boolean // a round hand stamp: चु: in Kalam inside a double ring (the wedding's)
+  className?: string
+}) {
   return (
     <svg
       aria-label="चुलेनिम्तो"
-      viewBox="0 0 120 80"
+      viewBox={ring ? '0 0 100 100' : '0 0 120 80'}
       className={`pointer-events-none absolute ${className} ${pressed ? 'chu-press' : 'opacity-0'}`}
     >
       <filter id="chu-ink">
@@ -149,9 +157,19 @@ export function ChuStamp({ pressed, className = 'right-[5%] bottom-[calc(50%+0.2
         <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 1.75" />
         <feComposite in="SourceGraphic" operator="in" />
       </filter>
-      <text x="60" y="62" textAnchor="middle" fill="currentColor" stroke="currentColor" strokeWidth="2.5" filter="url(#chu-ink)" className="font-display" fontSize="66">
-        चु:
-      </text>
+      {ring ? (
+        <g filter="url(#chu-ink)" fill="currentColor" stroke="currentColor">
+          <circle cx="50" cy="50" r="44" fill="none" strokeWidth="4" />
+          <circle cx="50" cy="50" r="38" fill="none" strokeWidth="1.5" />
+          <text x="50" y="64" textAnchor="middle" strokeWidth="1.5" fontFamily="Kalam" fontWeight="700" fontSize="44">
+            चु:
+          </text>
+        </g>
+      ) : (
+        <text x="60" y="62" textAnchor="middle" fill="currentColor" stroke="currentColor" strokeWidth="2.5" filter="url(#chu-ink)" className="font-display" fontSize="66">
+          चु:
+        </text>
+      )}
     </svg>
   )
 }
