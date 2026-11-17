@@ -153,17 +153,17 @@ export default function Envelope({ shloka, invocation, openLabel, onOpen, onOpen
           <p className={`font-display text-lg transition-all duration-1000 sm:text-xl ${shown(phase !== 'writing')}`}>{invocation}</p>
         </div>
 
-        {/* Under the knot: निमन्त्रणा in a flowing hand, then a personal link's guest name, and for a चुलेनिम्तो a
-            small gold चु: pressed on beside it. */}
-        <div className="absolute inset-x-0 bottom-0 flex h-1/2 flex-col items-center justify-center gap-[min(2vw,0.75rem)] px-6 pt-[calc(var(--knot-h)/2+0.5rem)] text-center">
-          <p className={`font-nimantrana text-[min(13vw,3.75rem)] leading-tight text-kagaz-gold transition-all duration-1000 ${shown(phase !== 'writing')}`}>{invite.nimantrana}</p>
-          {guest && (
+        {/* Under the knot, on a personal link: निमन्त्रणा in a flowing hand, the guest's name, and for a चुलेनिम्तो a
+            small gold चु: pressed on beside it. A plain link has nothing here. */}
+        {guest && (
+          <div className="absolute inset-x-0 bottom-0 flex h-1/2 flex-col items-center justify-center gap-[min(2vw,0.75rem)] px-6 pt-[calc(var(--knot-h)/2+0.5rem)] text-center">
+            <p className={`font-nimantrana text-[min(13vw,3.75rem)] leading-tight text-kagaz-gold transition-all duration-1000 ${shown(phase !== 'writing')}`}>{invite.nimantrana}</p>
             <p className={`relative ${guest.chu ? 'max-w-[calc(100%-2*min(23vw,6.5rem))]' : ''} font-display text-[min(7.4vw,2.25rem)] leading-snug text-balance transition-all delay-300 duration-1000 ${shown(phase !== 'writing')}`}>
               {guest.name}
               {guest.chu && <ChuStamp ring pressed={phase !== 'writing' || reduced} className="top-1/2 left-full ml-[min(5vw,1.5rem)] w-[min(17vw,4.75rem)] -translate-y-1/2 text-kagaz-gold" />}
             </p>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Once the blessing is up, a tap anywhere opens it without waiting. */}

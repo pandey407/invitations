@@ -15,6 +15,7 @@ export const wedding = {
   // Google Fonts for this event's design (envelope's निमन्त्रणा: Yatra One; the चु: stamp: Kalam; names: Parisienne, and Laila for Nepali; text: Cormorant Garamond + Noto Serif Devanagari)
   fonts:
     'https://fonts.googleapis.com/css2?family=Yatra+One&family=Kalam:wght@700&family=Parisienne&family=Laila:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Serif+Devanagari:wght@400;500;600&display=swap',
+  icon: 'favicon-wedding.svg', // browser-tab icon (public/): the gathbandhan knot on soft rose
   themeColor: '#cf9b93', // phone browser toolbar: the envelope's soft rose
 
   couple: {
@@ -45,7 +46,7 @@ export const wedding = {
   // Sanskrit prayers: shown as written in both languages. Under the knot, then the invocation.
   shloka: ['वक्रतुण्ड महाकाय सूर्यकोटि समप्रभ ।', 'निर्विघ्नं कुरु मे देव सर्वकार्येषु सर्वदा ॥'],
   invocation: 'श्री गणेशाय नमः',
-  nimantrana: 'निमन्त्रणा', // in a flowing calligraphic hand over the guest's name
+  nimantrana: 'निमन्त्रणा', // on a personal link: in a flowing hand over the guest's name
   openLabel: 'Open invitation', // read out by screen readers for the tap-to-open button
 
   // ── Opening (inside the gold arch, bells above) ────────────────────────────────────
