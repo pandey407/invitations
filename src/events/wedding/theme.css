@@ -1,0 +1,100 @@
+/* Wedding invite: handmade Nepali lokta kagaz with a soft red tint, the gathbandhan knot of the groom's white daura
+   silk and the bride's Banarasi, antique gold. */
+@theme {
+  --color-kagaz-ink: #5e1f22; /* deep maroon lettering on the soft rose envelope */
+  --color-kagaz-gold: #9a6f24; /* antique gold: the चु: stamp */
+}
+
+/* The lokta texture (assets/lokta.webp, made neutral grey so it takes any tint) multiplied with a colour: the paper's
+   fibres, flecks and wrinkles show through. The paper averages 96% white, so each base colour is set ~4% lighter
+   than the colour wanted: the envelope lands on a soft rose, #cf9b93. */
+.wedding-envelope {
+  /* The knot's band (the cloths fill about half of it): about a seventh of the screen on phones, full-width on
+     wide screens, within limits. */
+  --knot-h: clamp(110px, max(14svh, 20vw), 240px);
+}
+.kagaz {
+  background: var(--lokta) 0 0 / 640px, #d8a299;
+  background-blend-mode: multiply;
+}
+/* The sheet's two halves, which slide apart as the cloths come in. The right half's paper carries on exactly where
+   the left's leaves off (the envelope sets --halfw), so they read as one sheet. */
+.kagaz-right {
+  background-position: calc(2px - var(--halfw, 50vw)) 0, 0 0; /* it's 2px wider, overlapping the left half: no gap */
+}
+
+/* The gathbandhan video (TieVideo, 16:9) or the tied knot, its cloths (52% down the frame) centred on the knot's band.
+   On phones it's a little wider than the screen, so the cloths run off both sides; on wide screens it's capped and
+   its sides fade, so they taper off. The top and bottom fade too, so the petals don't stop at a hard line. */
+.tie-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(min(110vw, var(--knot-h) * 4), var(--knot-h) * 3.2);
+  max-width: none;
+  aspect-ratio: 16 / 9;
+  translate: -50% -52%;
+  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent),
+    linear-gradient(transparent, #000 10%, #000 90%, transparent);
+  mask-composite: intersect;
+  filter: drop-shadow(0 6px 10px rgb(94 31 34 / 0.25));
+}
+
+
+/* ── The invite inside ── */
+/* Brass bells swinging gently from where they hang. */
+.bell {
+  transform-origin: 50% 0;
+  animation: bell-swing 3.2s ease-in-out infinite alternate;
+}
+@keyframes bell-swing {
+  from { rotate: -3deg; }
+  to { rotate: 3deg; }
+}
+/* The Banarasi at the top corners and the banana leaves at the foot, stirring in a breeze. */
+.drape {
+  animation: drape-stir 6s ease-in-out infinite alternate;
+}
+@keyframes drape-stir {
+  from { rotate: -1deg; }
+  to { rotate: 1.2deg; }
+}
+.sway-leaf {
+  animation: leaf-sway 5s ease-in-out infinite alternate;
+}
+@keyframes leaf-sway {
+  from { rotate: -2deg; }
+  to { rotate: 1.5deg; }
+}
+/* The saptapadi painting is cut off at the knees and at its sides: those edges fade into the paper. */
+.fade-feet {
+  mask-image: linear-gradient(to bottom, transparent, #000 22%), linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+  mask-composite: intersect;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bell, .drape, .sway-leaf { animation: none; }
+}
+
+/* The painted pieces on the programme cards (assets/cards/*.webp) swaying a touch, as if hung there. */
+.card-art {
+  transform-origin: 50% 10%;
+  animation: card-art 4.5s ease-in-out infinite alternate;
+}
+@keyframes card-art {
+  from { rotate: -1.5deg; }
+  to { rotate: 1.5deg; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-art { animation: none; }
+}
+/* The wedding card's gathbandhan (cards/ceremony.webp, the knot painting): its cloths fade out before the corners. */
+.knot-band {
+  mask-image: linear-gradient(to right, transparent 4%, #000 22%, #000 78%, transparent 96%);
+}
+.knot-band .card-art {
+  animation: none;
+}
+/* A piece standing on a card (the panas lamp) sways from its base. */
+.stand .card-art {
+  transform-origin: 50% 100%;
+}

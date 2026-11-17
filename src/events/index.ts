@@ -2,8 +2,10 @@
 // Pure data (no browser APIs), so the build (vite.config.ts) and scripts can use it too.
 import { engagement } from './engagement/content.ts'
 import { mehendi } from './mehendi/content.ts'
+import { reception } from './reception/content.ts'
+import { wedding } from './wedding/content.ts'
 
-export const events = [engagement, mehendi]
+export const events = [engagement, mehendi, wedding, reception]
 export type Event = (typeof events)[number]
 export type Side = 'both' | 'bride' | 'groom'
 // An event links only the sides it lists (every event has `both`, its bare path).

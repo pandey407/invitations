@@ -3,6 +3,7 @@
 @import './envelope/envelope.css';
 @import './events/engagement/theme.css';
 @import './events/mehendi/theme.css';
+@import './events/wedding/theme.css';
 
 @theme {
   /* Palette sampled from the theme sheet swatches. */

@@ -5,6 +5,7 @@ import sealOutline from './assets/seal-outline.svg?raw'
 import sealUrl from './assets/seal.webp'
 import { DustText } from './DustText'
 import { GaneshDraw } from './GaneshDraw'
+import type { Guest } from './guest'
 
 const outlinePath = sealOutline.match(/ d="([^"]+)"/)?.[1] ?? ''
 const outlineView = sealOutline.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 100 100'
@@ -34,9 +35,10 @@ type Props = {
   openLabel: string // read out by screen readers for the seal button
   onOpen: () => void // the envelope has fully opened
   onOpenStart?: () => void // the envelope has started to open (the invite can begin animating in)
+  guest?: Guest | null // from a personal link: their name under Ganesh, and a gold चु: stamp for a चुलेनिम्तो
 }
 
-export function Envelope({ shloka, invocation, openLabel, onOpen, onOpenStart }: Props) {
+export function Envelope({ shloka, invocation, openLabel, onOpen, onOpenStart, guest }: Props) {
   const root = useRef<HTMLDivElement>(null)
   const top = useRef<HTMLDivElement>(null)
   const bottom = useRef<HTMLDivElement>(null)
@@ -78,9 +80,16 @@ export function Envelope({ shloka, invocation, openLabel, onOpen, onOpenStart }:
       <div ref={bottom} className="envelope-flap-lower absolute inset-x-0 bottom-0 h-1/2" />
 
       <div ref={content} className="text-cream">
-        {/* Top flap: Ganesh draws himself. */}
-        <div className="absolute inset-x-0 top-0 flex h-1/2 items-center justify-center pb-[min(19vw,5rem)]">
+        {/* Top flap: Ganesh draws himself; a personal link's guest name appears beneath him with the invocation. */}
+        <div className="absolute inset-x-0 top-0 flex h-1/2 flex-col items-center justify-center gap-[min(4vw,1.25rem,2.5svh)] px-6 pb-[min(19vw,5rem)]">
           <GaneshDraw className="w-[min(40vw,11rem,22svh)] text-gold-light drop-shadow-[0_6px_18px_rgb(0_0_0/0.35)]" />
+          {guest && (
+            <p
+              className={`text-center font-display text-[min(5.6vw,1.6rem)] leading-snug text-gold-light transition-all duration-1000 ${at(phase, 'invocation') ? 'opacity-100 blur-0' : 'translate-y-2 opacity-0 blur-sm'}`}
+            >
+              {guest.name}
+            </p>
+          )}
         </div>
 
         {/* Bottom flap: the shloka forms from gold dust, then the invocation. */}
@@ -102,6 +111,9 @@ export function Envelope({ shloka, invocation, openLabel, onOpen, onOpenStart }:
         />
       </div>
 
+      {/* चुलेनिम्तो: a gold चु: pressed onto the top flap, beside the seal, once the seal is in place. */}
+      {guest?.chu && <ChuStamp pressed={at(phase, 'ready')} />}
+
       <button
         ref={seal}
         onClick={open}
@@ -120,5 +132,26 @@ export function Envelope({ shloka, invocation, openLabel, onOpen, onOpenStart }:
         <img src={sealUrl} alt="" draggable={false} className={`relative w-full select-none ${phase === 'ready' ? 'seal-bounce' : ''}`} />
       </button>
     </div>
+  )
+}
+
+// The चु: hand stamp: gold ink, no border, slightly tilted, its ink broken up a little like a rubber stamp's.
+// Placed and coloured by the envelope it sits on (`className`); here, just above the seam beside the seal.
+export function ChuStamp({ pressed, className = 'right-[5%] bottom-[calc(50%+0.25rem)] w-[min(32vw,8.5rem)] text-gold-light' }: { pressed: boolean; className?: string }) {
+  return (
+    <svg
+      aria-label="चुलेनिम्तो"
+      viewBox="0 0 120 80"
+      className={`pointer-events-none absolute ${className} ${pressed ? 'chu-press' : 'opacity-0'}`}
+    >
+      <filter id="chu-ink">
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="9" />
+        <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 1.75" />
+        <feComposite in="SourceGraphic" operator="in" />
+      </filter>
+      <text x="60" y="62" textAnchor="middle" fill="currentColor" stroke="currentColor" strokeWidth="2.5" filter="url(#chu-ink)" className="font-display" fontSize="66">
+        चु:
+      </text>
+    </svg>
   )
 }

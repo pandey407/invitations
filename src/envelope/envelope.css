@@ -101,8 +101,19 @@
   50% { transform: scale(1.08); }
 }
 
+/* The चु: stamp thumps down: big and faint, pressed flat at a tilt. */
+.chu-press {
+  rotate: -9deg;
+  animation: chu-press 0.45s cubic-bezier(0.3, 0, 0.3, 1.4) forwards;
+}
+@keyframes chu-press {
+  from { opacity: 0; scale: 1.8; }
+  60% { opacity: 1; }
+  to { opacity: 0.95; scale: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .seal-bounce, .ganesh-flame { animation: none; }
+  .seal-bounce, .ganesh-flame, .chu-press { animation: none; }
   .seam-line { transform: none; }
   .seal-ripple { display: none; }
 }

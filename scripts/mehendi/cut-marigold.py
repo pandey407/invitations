@@ -3,6 +3,9 @@
 #   python3 scripts/mehendi/cut-marigold.py SRC OUT.webp MAX_SIDE          one piece (a basket)
 #   python3 scripts/mehendi/cut-marigold.py SRC OUT_DIR --split            a sheet of loose pieces, one file each:
 #                                                                          petal-N, flower-N, leaf-N .webp
+#   add --strict for art with white or cream subjects (the wedding's white silk): only the pure, neutral white of
+#   the background counts, so the silk isn't cut away with it. --pocket=N sets the smallest enclosed white patch
+#   cleared as background (strict mode keeps patches under 40000px, so highlights on white silk aren't holed).
 # Background = near-white pixels connected to the image border, plus white pockets enclosed by the art (gaps
 # between spilled flowers) bigger than POCKET pixels. Small pale highlights inside petals stay.
 import sys
@@ -10,13 +13,17 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter
 import numpy as np
 
-POCKET = 250
+# Background white: darkest channel above WHITE and nearly grey. --strict tightens both, and only clears enclosed
+# white patches that are big (real gaps in the art), so highlights on white silk aren't punched out as holes.
+WHITE, TINT, POCKET = (247, 8, 40000) if '--strict' in sys.argv else (236, 20, 250)
+# --pocket=N overrides the smallest enclosed white patch that counts as background (e.g. the hole in a loop of silk).
+POCKET = next((int(x.split('=')[1]) for x in sys.argv if x.startswith('--pocket=')), POCKET)
 
 
 def cut(src):
     im = Image.open(src).convert('RGB')
     a = np.asarray(im).astype(np.float32)
-    whiteish = (a.min(-1) > 236) & (a.max(-1) - a.min(-1) < 20)
+    whiteish = (a.min(-1) > WHITE) & (a.max(-1) - a.min(-1) < TINT)
     m = Image.fromarray(whiteish.astype(np.uint8) * 255).copy()  # copy: floodfill is a no-op on array-backed images
     for x, y in [(0, 0), (m.width - 1, 0), (0, m.height - 1), (m.width - 1, m.height - 1)]:
         if m.getpixel((x, y)) == 255:
