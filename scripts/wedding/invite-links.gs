@@ -24,7 +24,33 @@ const SITE = 'https://invite.ashleshpandey.com.np/';
 const COLS = 11; // A..K
 
 function onOpen() {
-  SpreadsheetApp.getUi().createMenu('Guest list').addItem('Add guest row', 'addGuestRow').addToUi();
+  SpreadsheetApp.getUi()
+    .createMenu('Guest list')
+    .addItem('Add guest row', 'addGuestRow')
+    .addItem('Tidy By Location', 'mergeTitleBars')
+    .addToUi();
+}
+
+/** An edit to the guest list reshapes the By Location tab (it's one formula), so its title bars are merged afresh. */
+function onEdit(e) {
+  if (e && e.range.getSheet().getName() === 'Sheet1') mergeTitleBars();
+}
+
+/**
+ * By Location: each place's title row ("Banepa: 7 invites") merged across the table's nine columns. Merges stay on
+ * fixed rows while the table's rows move, so they're all undone first, then made again where the titles are now.
+ */
+function mergeTitleBars() {
+  const sheet = SpreadsheetApp.getActive().getSheetByName('By Location');
+  if (!sheet) return;
+  SpreadsheetApp.flush(); // let the formula settle into its new shape first
+  sheet.getRange(2, 1, sheet.getMaxRows() - 1, 9).breakApart();
+  sheet
+    .getRange(1, 1, sheet.getLastRow(), 1)
+    .getDisplayValues()
+    .forEach(([v], i) => {
+      if (/: \d+ invites?$/.test(v)) sheet.getRange(i + 1, 1, 1, 9).merge();
+    });
 }
 
 /** Adds a guest row at the bottom: next SN, empty ticks and salutation, the row's formulas, the table's look. */
