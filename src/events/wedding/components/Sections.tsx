@@ -67,7 +67,7 @@ export function Hero() {
   const { lang, t } = useLang()
   const en = lang === 'en'
   return (
-    <header className="relative h-[176cqw] overflow-hidden">
+    <header className="relative h-[181cqw] overflow-hidden">
       {/* The bride's Banarasi, gathered at the two top corners. */}
       <img src={drapeUrl} alt="" width={412} height={900} className="drape pointer-events-none absolute top-0 left-0 w-[22cqw] origin-top-left" />
       <span className="pointer-events-none absolute top-0 right-0 w-[22cqw] -scale-x-100">
@@ -84,14 +84,14 @@ export function Hero() {
         />
       ))}
       {/* The gold arch, the names inside it. */}
-      <img src={archUrl} alt="" width={954} height={1400} className="absolute top-[36cqw] left-1/2 w-[76cqw] -translate-x-1/2" />
-      <div className="absolute inset-x-[22%] top-[64cqw] h-[78cqw] flex flex-col items-center justify-center text-center text-kagaz-ink">
+      <img src={archUrl} alt="" width={954} height={1400} className="absolute top-[36cqw] left-1/2 w-[80cqw] -translate-x-1/2" />
+      <div className="absolute inset-x-[21%] top-[65cqw] h-[83cqw] flex flex-col items-center justify-center text-center text-kagaz-ink">
         <p className={`text-kagaz-gold ${caps(en)} ${en ? 'text-[3cqw]' : 'text-[4.4cqw] font-medium'}`}>{t(invite.kicker)}</p>
-        <Rule className="mt-[2cqw] mb-[5cqw] w-[55%] text-[3cqw]" />
+        <Rule className="mt-[2cqw] mb-[3.5cqw] w-[55%] text-[3cqw]" />
         <Person who={invite.partnerOne === invite.couple.groom ? 'groom' : 'bride'} />
-        <p className={`my-[2cqw] font-display text-kagaz-gold ${en ? 'text-[6cqw] italic' : 'text-[5cqw]'}`}>{t(invite.and)}</p>
+        <p className={`my-[1.2cqw] font-display text-kagaz-gold ${en ? 'text-[6cqw] italic' : 'text-[5cqw]'}`}>{t(invite.and)}</p>
         <Person who={invite.partnerTwo === invite.couple.groom ? 'groom' : 'bride'} />
-        <Rule className="mt-[5cqw] mb-[3cqw] w-[55%] text-[3cqw]" />
+        <Rule className="mt-[3.5cqw] mb-[2.5cqw] w-[55%] text-[3cqw]" />
         <p className={`leading-snug text-balance ${en ? 'text-[3.6cqw] italic' : 'text-[3.8cqw]'}`}>{t(invite.invitation)}</p>
       </div>
       <BananaCorners />
