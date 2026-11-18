@@ -58,7 +58,7 @@ function Person({ who }: { who: 'groom' | 'bride' }) {
   return (
     <>
       <p className={`font-names leading-tight whitespace-nowrap ${en ? 'text-[7.6cqw]' : 'text-[8.5cqw]'}`}>{t(invite.fullNames[who])}</p>
-      <p className={`mt-[1cqw] leading-snug text-balance opacity-80 ${en ? 'text-[3.1cqw] italic' : 'text-[3.2cqw]'}`}>({t(invite.parents[who])})</p>
+      <p className={`mt-[1cqw] max-w-[90%] leading-snug text-balance opacity-80 ${en ? 'text-[3.1cqw] italic' : 'text-[3.2cqw]'}`}>({t(invite.parents[who])})</p>
     </>
   )
 }

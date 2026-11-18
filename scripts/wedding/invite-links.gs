@@ -1,13 +1,14 @@
 /**
- * Apps Script for the "Invitation List" Google Sheet (wedding + reception): the Add Row button and the invite links.
+ * Apps Script for the "Invitation List" Google Sheet (wedding + reception): the Guest list menu (add or insert a
+ * guest row, tidy By Location) and the invite links.
  *
- * Install: in the sheet, Extensions → Apps Script, replace ALL the code with this file, Save. (It includes the
- * Add Row button's addGuestRow, so the button keeps working.)
+ * Install: in the sheet, Extensions → Apps Script, replace ALL the code with this file, Save, reload the sheet, then
+ * run Guest list → Set up once (it asks for permission).
  *
  * Sheet1 columns:
  *   A SN · B Name · C Location · D Actual Name Ask? · E Physical Card · F Wedding · G चु: · H Salutation (dropdown;
  *   blank = श्री) · I Nepali Name (formula: "<salutation> <name in Nepali> ज्यू"; type over a cell to correct one) ·
- *   J Invite Link (=INVITE_LINK(...), recalculates whenever its row changes) · K Sent
+ *   J Sent · K Invite Link (=INVITE_LINK(...), recalculates whenever its row changes)
  *
  * Who gets a link (one per row):
  *   Physical Card ticked                  → no link (they get the printed card)
@@ -115,15 +116,16 @@ function insertGuestRow() {
 
 /**
  * Makes `row` a fresh guest row like `from`: B..K copied (formats, check boxes, dropdown, the Nepali Name and Invite
- * Link formulas), then everything typed or ticked emptied; A just takes the look (SN's formula fills it in).
+ * Link formulas), then everything typed or ticked emptied (B..H and J); A just takes the look (SN's formula fills
+ * it in).
  */
 function blankGuestRow(sheet, row, from) {
   sheet.getRange(from, 2, 1, COLS - 1).copyTo(sheet.getRange(row, 2, 1, COLS - 1));
   sheet.getRange(from, 1).copyTo(sheet.getRange(row, 1), SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false);
   sheet.getRange(row, 2, 1, 7).clearContent(); // B..H: name, place, ticks, salutation
-  sheet.getRange(row, 11).clearContent(); // K: Sent
+  sheet.getRange(row, 10).clearContent(); // J: Sent
   sheet.getRange(row, 4, 1, 4).setValue(false);
-  sheet.getRange(row, 11).setValue(false);
+  sheet.getRange(row, 10).setValue(false);
 }
 
 /**
