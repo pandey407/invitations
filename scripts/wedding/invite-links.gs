@@ -27,13 +27,32 @@ function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('Guest list')
     .addItem('Add guest row', 'addGuestRow')
+    .addItem('Insert guest row below the selected row', 'insertGuestRow')
     .addItem('Tidy By Location', 'mergeTitleBars')
+    .addSeparator()
+    .addItem('Set up: tidy after rows are deleted (run once)', 'setUpTriggers')
     .addToUi();
 }
 
 /** An edit to the guest list reshapes the By Location tab (it's one formula), so its title bars are merged afresh. */
 function onEdit(e) {
   if (e && e.range.getSheet().getName() === 'Sheet1') mergeTitleBars();
+}
+
+/**
+ * Deleting or inserting rows isn't an edit (onEdit doesn't hear it), so a change trigger tidies after those too.
+ * It needs permission once: Guest list > Set up, then allow it. Running it again replaces the old trigger.
+ */
+function setUpTriggers() {
+  ScriptApp.getProjectTriggers()
+    .filter((t) => t.getHandlerFunction() === 'onRowsChanged')
+    .forEach((t) => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger('onRowsChanged').forSpreadsheet(SpreadsheetApp.getActive()).onChange().create();
+  SpreadsheetApp.getUi().alert('Done: By Location now tidies itself after rows are deleted or inserted.');
+}
+
+function onRowsChanged(e) {
+  if (e && /ROW/.test(e.changeType)) mergeTitleBars(); // INSERT_ROW, REMOVE_ROW
 }
 
 /**
@@ -53,24 +72,16 @@ function mergeTitleBars() {
     });
 }
 
-/** Adds a guest row at the bottom: next SN, empty ticks and salutation, the row's formulas, the table's look. */
+// SN (column A) is one formula in the header cell A1 ("SN", then every named row numbered by its position), so it
+// stays 1, 2, 3... however rows are added, inserted, deleted or moved. Nothing here writes to column A.
+
+/** Adds a guest row at the bottom: empty ticks and salutation, the row's formulas, the table's look. */
 function addGuestRow() {
   const sheet = SpreadsheetApp.getActive().getSheetByName('Sheet1');
   const last = sheet.getLastRow();
   const row = last + 1;
   if (sheet.getMaxRows() < row) sheet.insertRowAfter(last);
-
-  // Copy the last row whole (formats, check boxes, dropdown, the Nepali Name and Invite Link formulas), then
-  // empty everything typed or ticked: A..H and K.
-  sheet.getRange(last, 1, 1, COLS).copyTo(sheet.getRange(row, 1, 1, COLS));
-  sheet.getRange(row, 1, 1, 8).clearContent();
-  sheet.getRange(row, 11).clearContent();
-  sheet.getRange(row, 4, 1, 4).setValue(false);
-  sheet.getRange(row, 11).setValue(false);
-
-  // Next SN number
-  const sns = sheet.getRange(2, 1, last - 1, 1).getValues().flat().filter((v) => typeof v === 'number');
-  sheet.getRange(row, 1).setValue(sns.length ? Math.max(...sns) + 1 : 1);
+  blankGuestRow(sheet, row, last);
 
   // Stretch the striped colours and filter buttons to cover the new row
   sheet.getBandings().forEach((b) => b.setRange(sheet.getRange(1, 1, row, COLS)));
@@ -81,6 +92,38 @@ function addGuestRow() {
   }
 
   sheet.setActiveRange(sheet.getRange(row, 2));
+}
+
+/**
+ * Inserts a guest row just below the selected one (select any cell in a row of Sheet1 first), set up like the rest.
+ * The stripes and filter grow on their own (the row is inside them), and SN renumbers itself.
+ */
+function insertGuestRow() {
+  const sheet = SpreadsheetApp.getActive().getSheetByName('Sheet1');
+  const active = SpreadsheetApp.getActive().getActiveRange();
+  // Not under the header: a row put in above row 2 would fall outside SN's formula (it numbers B2 down).
+  if (!active || active.getSheet().getName() !== 'Sheet1' || active.getLastRow() < 2) {
+    SpreadsheetApp.getUi().alert('Select a guest row on Sheet1 first: the new row goes just below it.');
+    return;
+  }
+  const above = active.getLastRow();
+  sheet.insertRowAfter(above);
+  const row = above + 1;
+  blankGuestRow(sheet, row, above);
+  sheet.setActiveRange(sheet.getRange(row, 2));
+}
+
+/**
+ * Makes `row` a fresh guest row like `from`: B..K copied (formats, check boxes, dropdown, the Nepali Name and Invite
+ * Link formulas), then everything typed or ticked emptied; A just takes the look (SN's formula fills it in).
+ */
+function blankGuestRow(sheet, row, from) {
+  sheet.getRange(from, 2, 1, COLS - 1).copyTo(sheet.getRange(row, 2, 1, COLS - 1));
+  sheet.getRange(from, 1).copyTo(sheet.getRange(row, 1), SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false);
+  sheet.getRange(row, 2, 1, 7).clearContent(); // B..H: name, place, ticks, salutation
+  sheet.getRange(row, 11).clearContent(); // K: Sent
+  sheet.getRange(row, 4, 1, 4).setValue(false);
+  sheet.getRange(row, 11).setValue(false);
 }
 
 /**

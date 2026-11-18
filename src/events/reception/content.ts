@@ -23,6 +23,7 @@ export const reception = {
     np: 'हाम्रो प्रीतिभोजमा यहाँको उपस्थिति र आशीर्वादको अपेक्षा गर्दछौं',
     en: 'We look forward to your presence and blessings at our reception',
   },
+  showParents: false, // just the first names in the arch
   showSindoor: false, // the sindoor box and potey belong to the wedding ceremony
 
 } as const

@@ -49,10 +49,23 @@ const BananaCorners = ({ className = '' }: { className?: string }) => (
   </>
 )
 
+// One of us in the arch: on the wedding card the full name, with whose son or daughter in brackets beneath; on the
+// reception card just the first name, larger.
+function Person({ who }: { who: 'groom' | 'bride' }) {
+  const { lang, t } = useLang()
+  const en = lang === 'en'
+  if (!invite.showParents) return <p className={`font-names leading-none ${en ? 'text-[12cqw]' : 'text-[11cqw]'}`}>{t(invite.couple[who])}</p>
+  return (
+    <>
+      <p className={`font-names leading-tight whitespace-nowrap ${en ? 'text-[7.6cqw]' : 'text-[8.5cqw]'}`}>{t(invite.fullNames[who])}</p>
+      <p className={`mt-[1cqw] leading-snug text-balance opacity-80 ${en ? 'text-[3.1cqw] italic' : 'text-[3.2cqw]'}`}>({t(invite.parents[who])})</p>
+    </>
+  )
+}
+
 export function Hero() {
   const { lang, t } = useLang()
   const en = lang === 'en'
-  const name = `font-names leading-none ${en ? 'text-[12cqw]' : 'text-[11cqw]'}`
   return (
     <header className="relative h-[176cqw] overflow-hidden">
       {/* The bride's Banarasi, gathered at the two top corners. */}
@@ -75,9 +88,9 @@ export function Hero() {
       <div className="absolute inset-x-[22%] top-[64cqw] h-[78cqw] flex flex-col items-center justify-center text-center text-kagaz-ink">
         <p className={`text-kagaz-gold ${caps(en)} ${en ? 'text-[3cqw]' : 'text-[4.4cqw] font-medium'}`}>{t(invite.kicker)}</p>
         <Rule className="mt-[2cqw] mb-[5cqw] w-[55%] text-[3cqw]" />
-        <p className={name}>{t(invite.partnerOne)}</p>
+        <Person who={invite.partnerOne === invite.couple.groom ? 'groom' : 'bride'} />
         <p className={`my-[2cqw] font-display text-kagaz-gold ${en ? 'text-[6cqw] italic' : 'text-[5cqw]'}`}>{t(invite.and)}</p>
-        <p className={name}>{t(invite.partnerTwo)}</p>
+        <Person who={invite.partnerTwo === invite.couple.groom ? 'groom' : 'bride'} />
         <Rule className="mt-[5cqw] mb-[3cqw] w-[55%] text-[3cqw]" />
         <p className={`leading-snug text-balance ${en ? 'text-[3.6cqw] italic' : 'text-[3.8cqw]'}`}>{t(invite.invitation)}</p>
       </div>

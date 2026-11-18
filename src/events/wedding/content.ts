@@ -50,6 +50,17 @@ export const wedding = {
   openLabel: 'Open invitation', // read out by screen readers for the tap-to-open button
 
   // ── Opening (inside the gold arch, bells above) ────────────────────────────────────
+  // In the arch: each of us by full name, and under it, in brackets, whose son or daughter (the reception card keeps
+  // just the first names: showParents). Ashlesh's father sends the card, so his name goes without श्रीमान्.
+  showParents: true,
+  fullNames: {
+    groom: { np: 'अस्लेष पाण्डे', en: 'Ashlesh Pandey' },
+    bride: { np: 'आरुषा लुइटेल', en: 'Aarusha Luitel' },
+  },
+  parents: {
+    groom: { np: 'माधव प्रसाद पाण्डे तथा श्रीमती निर्मला पाण्डेका सुपुत्र', en: 'son of Madhav Prasad Pandey & Mrs Nirmala Pandey' },
+    bride: { np: 'श्रीमान् राज कुमार लुइटेल तथा श्रीमती शोभा लुइटेलकी सुपुत्री', en: 'daughter of Mr Raj Kumar Luitel & Mrs Shova Luitel' },
+  },
   kicker: { np: 'शुभ विवाह', en: 'The Wedding of' },
   // under the names in the arch (no सपरिवार: the चु: on the envelope says who's invited)
   invitation: {
