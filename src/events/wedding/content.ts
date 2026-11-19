@@ -50,8 +50,8 @@ export const wedding = {
   openLabel: 'Open invitation', // read out by screen readers for the tap-to-open button
 
   // ── Opening (inside the gold arch, bells above) ────────────────────────────────────
-  // In the arch: each of us by full name, and under it, in brackets, whose son or daughter (the reception card keeps
-  // just the first names: showParents).
+  // In the arch: each of us by full name, and under it, in brackets, whose son or daughter (on the reception card
+  // too; showParents: false would show just the first names).
   showParents: true,
   fullNames: {
     groom: { np: 'अस्लेष पाण्डे', en: 'Ashlesh Pandey' },
