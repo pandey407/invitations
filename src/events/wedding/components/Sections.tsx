@@ -7,6 +7,7 @@ import feetUrl from '../assets/feet.webp'
 import kalashUrl from '../assets/kalash.webp'
 import sindoorUrl from '../assets/sindoor-potey.webp'
 import { invite } from '../invite'
+import { readTimes, sayTime, type PartKey } from '../times'
 
 // The wedding invite's pages, one column on the soft red lokta: the opening (brass bells hanging over a gold arch
 // with the names, the bride's Banarasi draped at the top corners, banana leaves at the foot), the saptapadi, the
@@ -142,12 +143,16 @@ const ART_PLACE: Record<string, { pieces: { at: string; flip?: boolean }[]; room
   reception: { pieces: [{ at: 'stand -bottom-[4cqw] -right-[4cqw] w-[18cqw]' }], room: 'mb-[4cqw]' }, // a panas lamp at the bottom-right corner
 }
 
-type Part = { title: Pair; date: Pair; time: Pair; place: Pair; address: Pair; mapLink: string }
+type Part = { title: Pair; date: Pair; at: string; onwards: boolean; place: Pair; address: Pair; mapLink: string }
+
+// The link's own times, if it carries any (/wedding/settings), else each part's from content.ts.
+const linkTimes = readTimes(location.search)
 
 // One part of the day: its title, date and time, and where (with directions).
 function PartCard({ part, art }: { part: Part; art: string }) {
   const { lang, t } = useLang()
   const en = lang === 'en'
+  const time = sayTime(linkTimes[art as PartKey] ?? part.at, part.onwards)
   const place = part.mapLink ? (
     <a href={part.mapLink} target="_blank" rel="noreferrer" className="underline decoration-kagaz-gold/60 underline-offset-4">
       {t(part.place)}
@@ -166,7 +171,7 @@ function PartCard({ part, art }: { part: Part; art: string }) {
       <h3 className={`font-names leading-tight ${en ? 'text-[8cqw]' : 'text-[6.4cqw]'}`}>{t(part.title)}</h3>
       <Rule className="mt-1 mb-3 w-[40%] text-[3cqw]" />
       {t(part.date) && <p className="text-lg leading-snug font-semibold">{t(part.date)}</p>}
-      {t(part.time) && <p className="text-base leading-snug opacity-80">{t(part.time)}</p>}
+      <p className="text-base leading-snug opacity-80">{t(time)}</p>
       {t(part.place) && <p className="mt-3 text-lg leading-snug font-semibold">{place}</p>}
       {t(part.address) && <p className="text-base leading-snug opacity-80">{t(part.address)}</p>}
       {part.mapLink && (

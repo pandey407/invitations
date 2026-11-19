@@ -83,13 +83,15 @@ export const wedding = {
     heading: { np: 'मिति सम्झनुहोला', en: 'Save the Date' },
     directions: { np: 'नक्सा हेर्नुहोस्', en: 'Get directions' },
   },
-  // Each: its title, date, time and place. A line left empty ('') is simply not shown.
+  // Each: its title, date, time (`at`, 24-hour; a link from /wedding/settings can carry others) and place. A line
+  // left empty ('') is simply not shown.
   // mapLink: Google Maps → Share → Copy link (the place name and the directions button open it).
   programme: {
     janti: {
       title: { np: 'जन्ती प्रस्थान', en: 'Janti Procession' },
       date: { np: 'मंसिर ९, २०८३ बुधवार', en: 'Wednesday, 25 November 2026' },
-      time: { np: 'बिहान ८:३० बजे', en: '8:30 AM' },
+      at: '08:30', // 24-hour; the card says it in words (src/events/wedding/times.ts)
+      onwards: false,
       place: { np: 'निजी निवास', en: 'Niji Niwas' },
       address: { np: 'रानीबारी, काठमाडौं', en: 'Ranibari, Kathmandu' },
       mapLink: 'https://maps.app.goo.gl/odHA4YXdjfb45rLc9',
@@ -97,7 +99,8 @@ export const wedding = {
     ceremony: {
       title: { np: 'शुभ विवाह', en: 'Wedding Ceremony' },
       date: { np: 'मंसिर ९, २०८३ बुधवार', en: 'Wednesday, 25 November 2026' },
-      time: { np: 'बिहान ९ बजे', en: '9:00 AM' },
+      at: '09:00',
+      onwards: false,
       place: { np: 'लर्ड प्यालेस ब्यांक्वेट', en: 'Lord Palace Banquet' },
       address: { np: 'टोखा रोड, काठमाडौं', en: 'Tokha Road, Kathmandu' },
       mapLink: 'https://maps.app.goo.gl/rdMf1VE2jJzrhR2Y6',
@@ -105,7 +108,8 @@ export const wedding = {
     reception: {
       title: { np: 'प्रीतिभोज', en: 'Reception' },
       date: { np: 'मंसिर १०, २०८३ बिहीबार', en: 'Thursday, 26 November 2026' },
-      time: { np: 'साँझ ५:३० बजेदेखि', en: '5:30 PM onwards' },
+      at: '17:30',
+      onwards: true, // "from 5:30 PM": साँझ ५:३० बजेदेखि / 5:30 PM onwards
       place: { np: 'कान्तिपुर एबी पार्टी प्यालेस', en: 'Kantipur AB Party Palace' },
       address: { np: 'नेपालटार, काठमाडौं', en: 'Nepaltar, Kathmandu' },
       mapLink: 'https://maps.app.goo.gl/DcE3vnBYZpbwbkkLA',

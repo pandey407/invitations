@@ -17,7 +17,17 @@ const lazyPages: Record<string, InvitePage> = Object.fromEntries(
   Object.entries(pages).map(([path, load]) => [path.split('/')[2], lazy(load)]),
 )
 
+// Our own tools, not invites: the wedding's link maker.
+const tools: Record<string, ComponentType> = { '/wedding/settings': lazy(() => import('./events/wedding/Settings.tsx')) }
+
 export default function App() {
+  const Tool = tools[location.pathname.replace(/\/+$/, '')]
+  if (Tool)
+    return (
+      <Suspense fallback={null}>
+        <Tool />
+      </Suspense>
+    )
   // Only event paths (/engagement, /engagement/aarusha, …) show an invite; the bare domain shows nothing.
   if (!route || !lazyPages[route.event]) return <main className="min-h-svh" />
   return <Shell event={route.event} side={route.side} />

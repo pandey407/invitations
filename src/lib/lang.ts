@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react'
+import { readLink } from '../envelope/guest'
 
 // Guests read the invite in one language at a time. Nepali by default; `?lang=en` opens it in English,
 // and the toggle (components/Lang.tsx) remembers the choice on this device.
@@ -11,6 +12,7 @@ export const LangContext = createContext<{ lang: Lang; setLang: (l: Lang) => voi
 export function initialLang(): Lang {
   const fromUrl = new URLSearchParams(location.search).get('lang')
   if (fromUrl === 'en' || fromUrl === 'np') return fromUrl
+  if (readLink(location.search).lang === 'en') return 'en' // a personal link made to open in English
   try {
     const saved = localStorage.getItem(LANG_KEY)
     if (saved === 'en' || saved === 'np') return saved

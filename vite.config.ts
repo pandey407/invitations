@@ -25,6 +25,8 @@ function fill(html: string, path: string) {
   return html.replace(/%([A-Z_]+)%/g, (all, key: string) => (key in values ? escape(values[key]) : all))
 }
 
+const TOOLS = ['/wedding/settings/'] // pages that aren't invites (see src/App.tsx)
+
 const BLANK = `<!doctype html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="robots" content="noindex" /><title>&#8203;</title><style>html,body{margin:0;height:100%;background:#faf4ea}</style></head><body></body></html>
 `
 
@@ -43,6 +45,11 @@ function eventPages(): Plugin {
         const html = String(index.source)
         for (const r of routes()) {
           this.emitFile({ type: 'asset', fileName: `${r.path.slice(1)}index.html`, source: fill(html, r.path) })
+        }
+        // Our tools (src/App.tsx): the app with no invite details, kept out of search.
+        for (const path of TOOLS) {
+          const page = fill(html, path).replace('<head>', '<head><meta name="robots" content="noindex" />')
+          this.emitFile({ type: 'asset', fileName: `${path.slice(1)}index.html`, source: page })
         }
         index.source = BLANK
         this.emitFile({ type: 'asset', fileName: '404.html', source: BLANK })
