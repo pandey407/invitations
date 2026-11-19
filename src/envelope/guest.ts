@@ -3,8 +3,8 @@
 //   n  the guest's name for the envelope            c  1 for a चुलेनिम्तो (the whole household: a gold "चु:" stamp)
 //   t  times that differ from the card's own, by part letter: { c: '1030', r: '1800' } (src/events/wedding/times.ts)
 //   l  'en' to open in English
-// The guest-list sheet (scripts/wedding/invite-links.gs) makes {n, c}; the link maker (/wedding/settings) can add t
-// and l, and may leave out the name. Pure (no browser APIs) so scripts can make the links too.
+// The guest-list sheet (scripts/wedding/invite-links.gs) makes {n, c, t}; the link maker (/wedding/settings) can also
+// add l, and may leave out the name. Pure (no browser APIs) so scripts can make the links too.
 export type Guest = { name: string; chu: boolean }
 export type LinkData = { guest: Guest | null; times: Record<string, string>; lang: 'en' | null }
 

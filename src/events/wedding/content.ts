@@ -99,7 +99,7 @@ export const wedding = {
     ceremony: {
       title: { np: 'शुभ विवाह', en: 'Wedding Ceremony' },
       date: { np: 'मंसिर ९, २०८३ बुधवार', en: 'Wednesday, 25 November 2026' },
-      at: '09:00',
+      at: '10:30', // the guest-list sheet's wedding links say 08:30 instead (scripts/wedding/invite-links.gs)
       onwards: false,
       place: { np: 'लर्ड प्यालेस ब्यांक्वेट', en: 'Lord Palace Banquet' },
       address: { np: 'टोखा रोड, काठमाडौं', en: 'Tokha Road, Kathmandu' },
