@@ -153,5 +153,6 @@ function INVITE_LINK(name, askName, physical, wedding, chu, nepali) {
   data.t = wedding === true ? { c: TIMES.ceremony } : { r: TIMES.reception };
   const payload = JSON.stringify(data);
   const token = Utilities.base64EncodeWebSafe(payload, Utilities.Charset.UTF_8).replace(/=+$/, '');
-  return SITE + (wedding === true ? 'wedding' : 'reception') + '/?g=' + token;
+  // After a # (not ?): link previewers don't see it, so every link gets the page's ready-made preview.
+  return SITE + (wedding === true ? 'wedding' : 'reception') + '/#g=' + token;
 }

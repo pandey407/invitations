@@ -7,7 +7,7 @@ import { sayTime, timesForLink, type PartKey } from './times'
 
 // The link maker (/wedding/settings, for us, not linked from the cards and kept out of search): pick whose side the
 // card is from, change any of the day's times, optionally address it to someone (with a चु: for a चुलेनिम्तो), and
-// copy the link. The name, times and language travel in the link itself, in one code (?g=…, like the guest-list
+// copy the link. The name, times and language travel in the link itself, in one code (#g=…, like the guest-list
 // sheet's names: src/envelope/guest.ts), so nothing is stored anywhere and nothing is readable in the link.
 
 type Side = 'groom' | 'bride' | 'reception'
@@ -130,10 +130,10 @@ export default function Settings() {
 
   const chosen = SIDES.find((s) => s.key === side)!
   const link = useMemo(() => {
-    // Everything rides in one code, like the sheet's names: ?g=…
+    // Everything rides in one code after a #, like the sheet's names: #g=…
     const shownTimes = Object.fromEntries(chosen.parts.map((k) => [k, times[k]]))
     const g = linkParam({ name, chu, times: timesForLink(shownTimes, DEFAULTS), english })
-    return wedding.siteUrl + chosen.path + (g ? `?g=${g}` : '')
+    return wedding.siteUrl + chosen.path + (g ? `#g=${g}` : '')
   }, [chosen, times, name, chu, english])
 
   const copied = result?.link === link ? (result.ok ? 'yes' : 'no') : null // changing anything clears it

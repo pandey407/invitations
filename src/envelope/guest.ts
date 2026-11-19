@@ -1,4 +1,4 @@
-// What a personal invite link carries, all in one code (?g=…) so none of it is readable in the address bar and no
+// What a personal invite link carries, all in one code (#g=…) so none of it is readable in the address bar and no
 // guest list is published with the site:
 //   n  the guest's name for the envelope            c  1 for a चुलेनिम्तो (the whole household: a gold "चु:" stamp)
 //   t  times that differ from the card's own, by part letter: { c: '1030', r: '1800' } (src/events/wedding/times.ts)
@@ -12,7 +12,7 @@ export type LinkData = { guest: Guest | null; times: Record<string, string>; lan
 const toB64 = (s: string) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 const fromB64 = (s: string) => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0)))
 
-/** The ?g= code for a link (empty when there's nothing to carry). */
+/** The #g= code for a link (empty when there's nothing to carry). */
 export function linkParam({ name = '', chu = false, times = {}, english = false }: { name?: string; chu?: boolean; times?: Record<string, string>; english?: boolean }) {
   const data: Record<string, unknown> = {}
   if (name.trim()) data.n = name.trim()
@@ -26,9 +26,12 @@ export function linkParam({ name = '', chu = false, times = {}, english = false 
 export const guestParam = ({ name, chu }: Guest) => linkParam({ name, chu })
 
 /** Everything a link carries; a missing or mangled code still opens the invite, just plainly. */
-export function readLink(search: string): LinkData {
+// The code rides after a # (…/wedding/#g=…): browsers never send that part, so to Facebook and other link previewers
+// every personal link is the same page, whose preview they already have (Messenger only shows previews it has).
+// Older links have it as ?g=…, which still works. `where` is location.search + location.hash.
+export function readLink(where: string): LinkData {
   const empty: LinkData = { guest: null, times: {}, lang: null }
-  const g = new URLSearchParams(search).get('g')
+  const g = /[?#&]g=([A-Za-z0-9_-]+)/.exec(where)?.[1]
   if (!g) return empty
   try {
     const { n, c, t, l } = JSON.parse(fromB64(g))
@@ -43,4 +46,4 @@ export function readLink(search: string): LinkData {
   }
 }
 
-export const readGuest = (search: string) => readLink(search).guest
+export const readGuest = (where: string) => readLink(where).guest

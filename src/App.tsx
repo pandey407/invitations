@@ -50,7 +50,7 @@ function Shell({ event, side }: { event: string; side: Side }) {
           shloka={text.shloka}
           invocation={text.invocation}
           openLabel={text.openLabel}
-          guest={readGuest(location.search)}
+          guest={readGuest(location.search + location.hash)}
           onOpenStart={() => setRevealing(true)}
           onOpen={() => setOpened(true)}
         />

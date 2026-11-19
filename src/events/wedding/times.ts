@@ -1,5 +1,5 @@
 // The times on the wedding and reception cards. Each part of the day has its time as "HH:MM" (24-hour) in
-// content.ts; a link can carry other times (inside its ?g= code, made by the link maker at /wedding/settings:
+// content.ts; a link can carry other times (inside its #g= code, made by the link maker at /wedding/settings:
 // src/envelope/guest.ts), and the card says them in words: "बिहान ८:३० बजे" / "8:30 AM", with "देखि" / "onwards"
 // for a part that runs on (the reception).
 // Pure (no browser APIs).
@@ -27,8 +27,8 @@ export function sayTime(at: string, onwards = false): Pair {
 }
 
 /** The times a link carries, by part: { ceremony: '10:00' }. Anything malformed is ignored. */
-export function readTimes(search: string): Partial<Record<PartKey, string>> {
-  const carried = readLink(search).times
+export function readTimes(where: string): Partial<Record<PartKey, string>> {
+  const carried = readLink(where).times
   const out: Partial<Record<PartKey, string>> = {}
   for (const key of Object.keys(LETTER) as PartKey[]) {
     const m = /^([01]\d|2[0-3])([0-5]\d)$/.exec(carried[LETTER[key]] ?? '')

@@ -146,7 +146,7 @@ const ART_PLACE: Record<string, { pieces: { at: string; flip?: boolean }[]; room
 type Part = { title: Pair; date: Pair; at: string; onwards: boolean; place: Pair; address: Pair; mapLink: string }
 
 // The link's own times, if it carries any (/wedding/settings), else each part's from content.ts.
-const linkTimes = readTimes(location.search)
+const linkTimes = readTimes(location.search + location.hash)
 
 // One part of the day: its title, date and time, and where (with directions).
 function PartCard({ part, art }: { part: Part; art: string }) {

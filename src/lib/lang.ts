@@ -12,7 +12,7 @@ export const LangContext = createContext<{ lang: Lang; setLang: (l: Lang) => voi
 export function initialLang(): Lang {
   const fromUrl = new URLSearchParams(location.search).get('lang')
   if (fromUrl === 'en' || fromUrl === 'np') return fromUrl
-  if (readLink(location.search).lang === 'en') return 'en' // a personal link made to open in English
+  if (readLink(location.search + location.hash).lang === 'en') return 'en' // a personal link made to open in English
   try {
     const saved = localStorage.getItem(LANG_KEY)
     if (saved === 'en' || saved === 'np') return saved
