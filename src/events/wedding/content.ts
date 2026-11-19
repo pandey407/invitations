@@ -51,14 +51,14 @@ export const wedding = {
 
   // ── Opening (inside the gold arch, bells above) ────────────────────────────────────
   // In the arch: each of us by full name, and under it, in brackets, whose son or daughter (the reception card keeps
-  // just the first names: showParents). Ashlesh's father sends the card, so his Nepali name goes without श्रीमान् (the English has Mr).
+  // just the first names: showParents).
   showParents: true,
   fullNames: {
     groom: { np: 'अस्लेष पाण्डे', en: 'Ashlesh Pandey' },
     bride: { np: 'आरुषा लुइटेल', en: 'Aarusha Luitel' },
   },
   parents: {
-    groom: { np: 'सुपुत्र: माधव प्रसाद पाण्डे तथा श्रीमती निर्मला पाण्डे', en: 'son of Mr Madhav Prasad Pandey & Mrs Nirmala Pandey' },
+    groom: { np: 'सुपुत्र: श्रीमान् माधव प्रसाद पाण्डे तथा श्रीमती निर्मला पाण्डे', en: 'son of Mr Madhav Prasad Pandey & Mrs Nirmala Pandey' },
     bride: { np: 'सुपुत्री: श्रीमान् राज कुमार लुइटेल तथा श्रीमती शोभा लुइटेल', en: 'daughter of Mr Raj Kumar Luitel & Mrs Shova Luitel' },
   },
   kicker: { np: 'शुभ विवाह', en: 'The Wedding of' },
