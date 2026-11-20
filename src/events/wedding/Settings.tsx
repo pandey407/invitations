@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { linkParam, readLink, savedKey } from '../../envelope/guest'
+import { linkParam } from '../../envelope/guest'
 import { reception } from '../reception/content'
 import loktaUrl from './assets/lokta.webp'
 import { wedding } from './content'
-import { fromLetters, sayTime, timesForLink, type PartKey } from './times'
+import { sayTime, timesForLink, type PartKey } from './times'
 
 // The link maker (/wedding/settings, for us, not linked from the cards and kept out of search): pick whose side the
 // card is from, change any of the day's times, optionally address it to someone (with a चु: for a चुलेनिम्तो), and
@@ -13,17 +13,17 @@ import { fromLetters, sayTime, timesForLink, type PartKey } from './times'
 // with an id, and "Sent links" below lists them and changes their times: a card opened from a saved link shows
 // its row's times.
 
-type Side = 'groom' | 'bride' | 'reception'
+export type Side = 'groom' | 'bride' | 'reception'
 
-const SIDES: { key: Side; label: string; sub: string; path: string; parts: readonly PartKey[] }[] = [
+export const SIDES: { key: Side; label: string; sub: string; path: string; parts: readonly PartKey[] }[] = [
   { key: 'groom', label: 'Groom’s side', sub: 'अस्लेष · janti, wedding, reception', path: 'wedding/', parts: wedding.sides.both.parts },
   { key: 'bride', label: 'Bride’s side', sub: 'आरुषा · wedding', path: `wedding/${wedding.sides.bride.path}/`, parts: wedding.sides.bride.parts },
   { key: 'reception', label: 'Reception only', sub: 'प्रीतिभोज', path: `${reception.slug}/`, parts: reception.sides.both.parts },
 ]
 
-const API = wedding.savedLinks
-const KEY_STORE = 'link-maker-passcode'
-const readKey = () => {
+export const API = wedding.savedLinks
+export const KEY_STORE = 'link-maker-passcode'
+export const readKey = () => {
   try {
     return localStorage.getItem(KEY_STORE) ?? ''
   } catch {
@@ -33,17 +33,17 @@ const readKey = () => {
 // A short random id for a saved link: 8 letters and digits.
 const newId = () => Array.from(crypto.getRandomValues(new Uint8Array(8)), (b) => 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b % 56]).join('')
 // The web app (text/plain, so no CORS preflight; Apps Script answers any origin).
-async function callApi(body: Record<string, unknown>) {
+export async function callApi(body: Record<string, unknown>) {
   const r = await fetch(API, { method: 'POST', body: JSON.stringify(body) })
   return r.json()
 }
 // "1000" (as the sheet sends) ↔ "10:00" (as the pickers use).
-const colon = (t: string) => `${t.slice(0, 2)}:${t.slice(2)}`
-const LETTER: Record<PartKey, string> = { janti: 'j', ceremony: 'c', reception: 'r' }
+export const colon = (t: string) => `${t.slice(0, 2)}:${t.slice(2)}`
+export const LETTER: Record<PartKey, string> = { janti: 'j', ceremony: 'c', reception: 'r' }
 
-type Saved = { id: string; made: string; side: string; name: string; t: Record<string, string>; link: string }
+export type Saved = { id: string; made: string; side: string; name: string; t: Record<string, string>; link: string }
 
-const DEFAULTS = Object.fromEntries(
+export const DEFAULTS = Object.fromEntries(
   (Object.keys(wedding.programme) as PartKey[]).map((k) => [k, wedding.programme[k].at]),
 ) as Record<PartKey, string>
 
@@ -102,7 +102,7 @@ function Dropdown({ label, value, options, onChange }: { label: string; value: s
   )
 }
 
-function TimePicker({ value, onChange, label }: { value: string; onChange: (at: string) => void; label: string }) {
+export function TimePicker({ value, onChange, label }: { value: string; onChange: (at: string) => void; label: string }) {
   const [h, m] = value.split(':').map(Number)
   const pm = h >= 12
   const h12 = h % 12 || 12
@@ -132,7 +132,20 @@ function TimePicker({ value, onChange, label }: { value: string; onChange: (at: 
   )
 }
 
-const Label = ({ children }: { children: ReactNode }) => <p className="mb-2 text-xs font-semibold tracking-[0.18em] text-kagaz-gold uppercase">{children}</p>
+export const Label = ({ children }: { children: ReactNode }) => <p className="mb-2 text-xs font-semibold tracking-[0.18em] text-kagaz-gold uppercase">{children}</p>
+
+// The page's look: the wedding's fonts and its rose lokta paper.
+export function usePageLook(title: string) {
+  useEffect(() => {
+    document.title = title
+    const fonts = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: wedding.fonts })
+    document.head.appendChild(fonts)
+    const { style } = document.body
+    style.background = `url(${loktaUrl}) 0 0 / 640px, #ffded3`
+    style.backgroundBlendMode = 'multiply'
+    return () => fonts.remove()
+  }, [title])
+}
 
 export default function Settings() {
   const [side, setSide] = useState<Side>('groom')
@@ -141,21 +154,12 @@ export default function Settings() {
   const [chu, setChu] = useState(false)
   const [english, setEnglish] = useState(false)
   const [result, setResult] = useState<{ link: string; ok: boolean } | null>(null) // the last copy, and of which link
-  const [key, setKey] = useState(readKey)
+  const [key] = useState(readKey)
   const [id, setId] = useState(newId)
   const [savedAs, setSavedAs] = useState<{ id: string; key: string } | null>(null) // what's saved under `id`
   const [saveState, setSaveState] = useState<'saving' | 'saved' | 'failed' | 'passcode' | null>(null)
 
-  // The page's look: the wedding's fonts and its rose lokta paper.
-  useEffect(() => {
-    document.title = 'Invite link maker'
-    const fonts = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: wedding.fonts })
-    document.head.appendChild(fonts)
-    const { style } = document.body
-    style.background = `url(${loktaUrl}) 0 0 / 640px, #ffded3`
-    style.backgroundBlendMode = 'multiply'
-    return () => fonts.remove()
-  }, [])
+  usePageLook('Invite link maker')
 
   const chosen = SIDES.find((s) => s.key === side)!
   const shownTimes = useMemo(() => Object.fromEntries(chosen.parts.map((k) => [k, times[k]])) as Partial<Record<PartKey, string>>, [chosen, times])
@@ -183,13 +187,11 @@ export default function Settings() {
       if (r.ok) {
         setSavedAs({ id, key: content })
         setSaveState('saved')
-        setListVersion((v) => v + 1)
       } else setSaveState(r.error === 'passcode' ? 'passcode' : 'failed')
     } catch {
       setSaveState('failed')
     }
   }
-  const [listVersion, setListVersion] = useState(0)
 
   const copied = result?.link === link ? (result.ok ? 'yes' : 'no') : null // changing anything clears it
   const copy = async () => {
@@ -209,6 +211,16 @@ export default function Settings() {
         <h1 className="font-names text-4xl">Invite link maker</h1>
         <p className="mt-1 text-sm opacity-70">अस्लेष र आरुषा · शुभ विवाह</p>
       </header>
+
+      {API && (
+        <a href="/wedding/settings/sent/" className="flex items-center justify-between gap-3 rounded-3xl border border-kagaz-gold/30 bg-[#fbf1ec]/80 p-5 shadow-sm shadow-kagaz-ink/10">
+          <span>
+            <span className="block text-base font-semibold">Sent links</span>
+            <span className="block text-sm opacity-75">See a link you sent, change its times, or browse every saved link</span>
+          </span>
+          <span aria-hidden className="text-2xl text-kagaz-gold">→</span>
+        </a>
+      )}
 
       <section className="rounded-3xl border border-kagaz-gold/30 bg-[#fbf1ec]/80 p-5 shadow-sm shadow-kagaz-ink/10">
         <Label>Sender side</Label>
@@ -294,314 +306,19 @@ export default function Settings() {
         {saving && saveState && (
           <p className={`mt-2 text-sm ${saveState === 'saved' || saveState === 'saving' ? 'opacity-70' : 'text-[#9a1b1b]'}`}>
             {saveState === 'saving' && 'Saving to Sent links…'}
-            {saveState === 'saved' && 'Saved to Sent links ✓ (its times can be changed below)'}
+            {saveState === 'saved' && 'Saved to Sent links ✓ (its times can be changed there)'}
             {saveState === 'failed' && 'Couldn’t save it to Sent links: the link still works, with the times above.'}
-            {saveState === 'passcode' && 'The passcode is wrong, so it wasn’t saved: set it again below.'}
+            {saveState === 'passcode' && 'The passcode is wrong, so it wasn’t saved: set it again on the Sent links page.'}
           </p>
         )}
       </section>
 
-      {API && key && <PastedLink passcode={key} onSaved={() => setListVersion((v) => v + 1)} />}
-      {API && <SentLinks passcode={key} setPasscode={setKey} version={listVersion} />}
+      {API && !key && (
+        <p className="-mt-3 text-center text-sm opacity-70">
+          To save the links you make here (and change them later), enter the passcode on the <a href="/wedding/settings/sent/" className="underline">Sent links</a> page.
+        </p>
+      )}
     </main>
   )
 }
 
-const sideOf = (key: string) => SIDES.find((s) => s.key === key)
-
-// The links saved in the guest sheet's "Sent links" tab, newest first; change a link's times and its card follows.
-function SentLinks({ passcode, setPasscode, version }: { passcode: string; setPasscode: (k: string) => void; version: number }) {
-  const [typed, setTyped] = useState('')
-  const [links, setLinks] = useState<Saved[] | null>(null)
-  const [problem, setProblem] = useState<string | null>(null)
-  const [filter, setFilter] = useState('')
-
-  useEffect(() => {
-    if (!passcode) return
-    let live = true
-    setProblem(null)
-    callApi({ key: passcode, action: 'list' })
-      .then((r) => {
-        if (!live) return
-        if (r.error === 'passcode') {
-          setProblem('That passcode isn’t right.')
-          setPasscode('')
-          try {
-            localStorage.removeItem(KEY_STORE)
-          } catch {
-            // not stored
-          }
-        } else if (Array.isArray(r.links)) setLinks((r.links as Saved[]).reverse())
-        else setProblem('Couldn’t load the sent links.')
-      })
-      .catch(() => live && setProblem('Couldn’t reach the guest sheet.'))
-    return () => {
-      live = false
-    }
-  }, [passcode, version, setPasscode])
-
-  const unlock = () => {
-    const k = typed.trim()
-    if (!k) return
-    try {
-      localStorage.setItem(KEY_STORE, k)
-    } catch {
-      // kept for this visit only
-    }
-    setPasscode(k)
-  }
-
-  const shown = (links ?? []).filter((l) => !filter.trim() || l.name.toLowerCase().includes(filter.trim().toLowerCase()))
-  return (
-    <section className="rounded-3xl border border-kagaz-gold/30 bg-[#fbf1ec]/80 p-5 shadow-sm shadow-kagaz-ink/10">
-      <Label>Sent links</Label>
-      {!passcode ? (
-        <>
-          <p className="mb-2 text-sm opacity-75">Enter the passcode to save links and change their times later.</p>
-          <div className="grid grid-cols-[1fr_auto] gap-2">
-            <input
-              type="password"
-              value={typed}
-              onChange={(e) => setTyped(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && unlock()}
-              placeholder="Passcode"
-              className="rounded-xl border border-kagaz-gold/40 bg-white px-3 py-2.5 text-base"
-            />
-            <button type="button" onClick={unlock} className="rounded-xl bg-kagaz-ink px-4 py-2.5 font-semibold text-[#fbf1ec]">
-              Unlock
-            </button>
-          </div>
-          {problem && <p className="mt-2 text-sm text-[#9a1b1b]">{problem}</p>}
-        </>
-      ) : problem ? (
-        <p className="text-sm text-[#9a1b1b]">{problem}</p>
-      ) : !links ? (
-        <p className="text-sm opacity-70">Loading…</p>
-      ) : !links.length ? (
-        <p className="text-sm opacity-70">None yet: links you copy, share or open above are saved here.</p>
-      ) : (
-        <div className="grid gap-3">
-          {links.length > 5 && (
-            <input
-              type="search"
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              placeholder="Find by receiver"
-              className="rounded-xl border border-kagaz-gold/40 bg-white px-3 py-2 text-base"
-            />
-          )}
-          {shown.map((l) => (
-            <SentLink key={l.id} saved={l} passcode={passcode} onChange={(t) => setLinks((all) => all && all.map((x) => (x.id === l.id ? { ...x, t } : x)))} />
-          ))}
-        </div>
-      )}
-    </section>
-  )
-}
-
-function SentLink({ saved, passcode, onChange }: { saved: Saved; passcode: string; onChange: (t: Record<string, string>) => void }) {
-  const side = sideOf(saved.side)
-  const parts = side?.parts ?? (Object.keys(LETTER) as PartKey[]).filter((k) => saved.t[LETTER[k]])
-  const fromSheet = () => Object.fromEntries(parts.map((k) => [k, saved.t[LETTER[k]] ? colon(saved.t[LETTER[k]]) : DEFAULTS[k]])) as Record<PartKey, string>
-  const [open, setOpen] = useState(false)
-  const [times, setTimes] = useState(fromSheet)
-  const [state, setState] = useState<'saving' | 'saved' | 'failed' | null>(null)
-  const changed = parts.some((k) => times[k] !== fromSheet()[k])
-  const made = new Date(saved.made)
-
-  const store = async () => {
-    setState('saving')
-    try {
-      const r = await callApi({ key: passcode, action: 'times', id: saved.id, times })
-      if (r.ok) {
-        onChange(r.t)
-        setState('saved')
-      } else setState('failed')
-    } catch {
-      setState('failed')
-    }
-  }
-
-  return (
-    <div className="rounded-2xl border border-kagaz-gold/40 bg-white/60 px-4 py-3">
-      <button type="button" onClick={() => setOpen(!open)} className="flex w-full items-baseline justify-between gap-3 text-left">
-        <span>
-          <span className="block font-semibold">{saved.name || 'No receiver name'}</span>
-          <span className="block text-sm opacity-70">
-            {side?.label ?? saved.side}
-            {!Number.isNaN(made.getTime()) && ` · ${made.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`}
-          </span>
-        </span>
-        <span className="shrink-0 text-right text-sm opacity-80">
-          {parts.map((k) => (
-            <span key={k} className="block">
-              {sayTime(fromSheet()[k]).en}
-            </span>
-          ))}
-        </span>
-      </button>
-      {open && (
-        <div className="mt-3 grid gap-3 border-t border-kagaz-gold/30 pt-3">
-          {parts.map((k) => (
-            <div key={k} className="flex flex-col gap-2">
-              <span className="font-semibold">{wedding.programme[k].title.en}</span>
-              <TimePicker value={times[k]} onChange={(at) => (setTimes({ ...times, [k]: at }), setState(null))} label={`${saved.name} ${wedding.programme[k].title.en}`} />
-            </div>
-          ))}
-          <div className="grid grid-cols-[1fr_auto] gap-2">
-            <button
-              type="button"
-              disabled={!changed || state === 'saving'}
-              onClick={store}
-              className="rounded-xl bg-kagaz-ink px-4 py-2.5 font-semibold text-[#fbf1ec] disabled:opacity-40"
-            >
-              {state === 'saving' ? 'Saving…' : 'Save times'}
-            </button>
-            {saved.link && (
-              <a href={saved.link} target="_blank" rel="noreferrer" className="rounded-xl border border-kagaz-gold/50 px-4 py-2.5 text-center font-semibold">
-                Open
-              </a>
-            )}
-          </div>
-          {state === 'saved' && <p className="text-sm opacity-70">Saved ✓ The card now shows these times.</p>}
-          {state === 'failed' && <p className="text-sm text-[#9a1b1b]">Couldn’t save: try again.</p>}
-        </div>
-      )}
-    </div>
-  )
-}
-
-// Which side a pasted link is from, by its path: /wedding/aarusha/ (bride), /reception/, else /wedding/ (groom).
-function sideOfPath(path: string): Side | null {
-  const p = path.replace(/^\/+|\/+$/g, '')
-  if (p === `wedding/${wedding.sides.bride.path}`) return 'bride'
-  if (p === reception.slug) return 'reception'
-  if (p === 'wedding') return 'groom'
-  return null
-}
-
-type Pasted = { side: Side; key: string; name: string; chu: boolean; english: boolean; times: Record<PartKey, string>; inSheet: boolean; link: string }
-
-// Paste any personal link already sent (old ?g= ones too): see what it carries, and change its times. The change is
-// kept in the guest sheet's "Sent links" tab under the link's id (or its whole code), which the card reads.
-function PastedLink({ passcode, onSaved }: { passcode: string; onSaved: () => void }) {
-  const [text, setText] = useState('')
-  const [found, setFound] = useState<Pasted | null>(null)
-  const [times, setTimes] = useState<Record<PartKey, string> | null>(null)
-  const [problem, setProblem] = useState<string | null>(null)
-  const [state, setState] = useState<'loading' | 'saving' | 'saved' | 'failed' | null>(null)
-
-  useEffect(() => {
-    setFound(null)
-    setTimes(null)
-    setProblem(null)
-    setState(null)
-    const raw = text.trim()
-    if (!raw) return
-    let url: URL
-    try {
-      url = new URL(raw)
-    } catch {
-      setProblem('That isn’t a link.')
-      return
-    }
-    const side = sideOfPath(url.pathname)
-    const data = readLink(url.search + url.hash)
-    const key = savedKey(data)
-    if (!side) return setProblem('That isn’t a wedding or reception invite link.')
-    if (!key) return setProblem('That’s the plain card (no guest code), so there’s nothing personal to change.')
-    const parts = SIDES.find((s) => s.key === side)!.parts
-    const carried = fromLetters(data.times)
-    const base = Object.fromEntries(parts.map((k) => [k, carried[k] ?? DEFAULTS[k]])) as Record<PartKey, string>
-    let live = true
-    setState('loading')
-    fetch(`${API}?id=${encodeURIComponent(key)}`)
-      .then((r) => r.json())
-      .catch(() => ({}))
-      .then((d) => {
-        if (!live) return
-        const saved = d && d.t ? fromLetters(d.t) : {}
-        const now = { ...base, ...Object.fromEntries(parts.filter((k) => saved[k]).map((k) => [k, saved[k]])) } as Record<PartKey, string>
-        setFound({ side, key, name: data.guest?.name ?? '', chu: data.guest?.chu ?? false, english: data.lang === 'en', times: now, inSheet: Boolean(d && d.t), link: raw })
-        setTimes(now)
-        setState(null)
-      })
-    return () => {
-      live = false
-    }
-  }, [text])
-
-  const parts = found ? SIDES.find((s) => s.key === found.side)!.parts : []
-  const changed = Boolean(found && times && parts.some((k) => times[k] !== found.times[k]))
-  const store = async () => {
-    if (!found || !times) return
-    setState('saving')
-    try {
-      const r = await callApi({ key: passcode, action: 'set', id: found.key, side: found.side, name: found.name, chu: found.chu, english: found.english, times, link: found.link })
-      if (r.ok) {
-        const now = { ...times, ...fromLetters(r.t ?? {}) }
-        setFound({ ...found, times: now, inSheet: true })
-        setTimes(now)
-        setState('saved')
-        onSaved()
-      } else setState('failed')
-    } catch {
-      setState('failed')
-    }
-  }
-
-  const Row = ({ label, children }: { label: string; children: ReactNode }) => (
-    <div className="flex items-baseline justify-between gap-3 border-b border-kagaz-gold/20 py-1.5 text-sm last:border-0">
-      <span className="opacity-70">{label}</span>
-      <span className="text-right font-semibold">{children}</span>
-    </div>
-  )
-
-  return (
-    <section className="rounded-3xl border border-kagaz-gold/30 bg-[#fbf1ec]/80 p-5 shadow-sm shadow-kagaz-ink/10">
-      <Label>Change a sent link</Label>
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        rows={2}
-        placeholder="Paste a link you sent"
-        className="w-full resize-none rounded-xl border border-kagaz-gold/40 bg-white px-3 py-2.5 font-mono text-sm"
-      />
-      {problem && <p className="mt-2 text-sm text-[#9a1b1b]">{problem}</p>}
-      {state === 'loading' && <p className="mt-2 text-sm opacity-70">Looking it up…</p>}
-      {found && times && (
-        <div className="mt-3 grid gap-3">
-          <div className="rounded-2xl border border-kagaz-gold/40 bg-white/60 px-4 py-2">
-            <Row label="Side">{SIDES.find((s) => s.key === found.side)!.label}</Row>
-            <Row label="Receiver">{found.name || '—'}</Row>
-            <Row label="चु: stamp">{found.chu ? 'Yes' : 'No'}</Row>
-            <Row label="Opens in">{found.english ? 'English' : 'Nepali'}</Row>
-            {parts.map((k) => (
-              <Row key={k} label={wedding.programme[k].title.en}>
-                {sayTime(found.times[k]).en}
-              </Row>
-            ))}
-            <Row label="Changed before">{found.inSheet ? 'Yes, in Sent links' : 'No'}</Row>
-          </div>
-          {parts.map((k) => (
-            <div key={k} className="flex flex-col gap-2">
-              <span className="font-semibold">{wedding.programme[k].title.en}</span>
-              <TimePicker value={times[k]} onChange={(at) => (setTimes({ ...times, [k]: at }), setState(null))} label={`Pasted link ${wedding.programme[k].title.en}`} />
-            </div>
-          ))}
-          <div className="grid grid-cols-[1fr_auto] gap-2">
-            <button type="button" disabled={!changed || state === 'saving'} onClick={store} className="rounded-xl bg-kagaz-ink px-4 py-2.5 font-semibold text-[#fbf1ec] disabled:opacity-40">
-              {state === 'saving' ? 'Saving…' : 'Save times'}
-            </button>
-            <a href={found.link} target="_blank" rel="noreferrer" className="rounded-xl border border-kagaz-gold/50 px-4 py-2.5 text-center font-semibold">
-              Open
-            </a>
-          </div>
-          {state === 'saved' && <p className="text-sm opacity-70">Saved ✓ The same link now shows these times.</p>}
-          {state === 'failed' && <p className="text-sm text-[#9a1b1b]">Couldn’t save: if you just updated the script, deploy it as a new version.</p>}
-          <p className="text-xs opacity-60">The name, चु: and language are part of the link itself; to change those, make a new link above.</p>
-        </div>
-      )}
-    </section>
-  )
-}

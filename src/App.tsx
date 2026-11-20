@@ -17,8 +17,11 @@ const lazyPages: Record<string, InvitePage> = Object.fromEntries(
   Object.entries(pages).map(([path, load]) => [path.split('/')[2], lazy(load)]),
 )
 
-// Our own tools, not invites: the wedding's link maker.
-const tools: Record<string, ComponentType> = { '/wedding/settings': lazy(() => import('./events/wedding/Settings.tsx')) }
+// Our own tools, not invites: the wedding's link maker and its sent links.
+const tools: Record<string, ComponentType> = {
+  '/wedding/settings': lazy(() => import('./events/wedding/Settings.tsx')),
+  '/wedding/settings/sent': lazy(() => import('./events/wedding/SentLinksPage.tsx')),
+}
 
 export default function App() {
   const Tool = tools[location.pathname.replace(/\/+$/, '')]
