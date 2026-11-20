@@ -12,6 +12,9 @@
 export const wedding = {
   slug: 'wedding', // the URL path: /wedding
   siteUrl: 'https://invite.ashleshpandey.com.np/',
+  // The guest sheet's "Sent links" web app (scripts/wedding/sent-links.gs, its …/exec URL): the link maker saves each
+  // link there, and a card opened from a saved link takes its times from that row. Empty: links carry their times only.
+  savedLinks: '',
   // Google Fonts for this event's design (envelope's निमन्त्रणा: Yatra One; the चु: stamp: Kalam; names: Parisienne, and Laila for Nepali; text: Cormorant Garamond + Noto Serif Devanagari)
   fonts:
     'https://fonts.googleapis.com/css2?family=Yatra+One&family=Kalam:wght@700&family=Parisienne&family=Laila:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Serif+Devanagari:wght@400;500;600&display=swap',

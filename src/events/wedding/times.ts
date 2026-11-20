@@ -2,7 +2,9 @@
 // content.ts; a link can carry other times (inside its #g= code, made by the link maker at /wedding/settings:
 // src/envelope/guest.ts), and the card says them in words: "बिहान ८:३० बजे" / "8:30 AM", with "देखि" / "onwards"
 // for a part that runs on (the reception).
-// Pure (no browser APIs).
+// A link made by the link maker also carries an id, and its row in the guest sheet's "Sent links" tab can change the
+// times after it's sent (useTimes).
+import { useEffect, useState } from 'react'
 import { readLink } from '../../envelope/guest'
 import type { Pair } from '../../lib/lang'
 
@@ -28,7 +30,10 @@ export function sayTime(at: string, onwards = false): Pair {
 
 /** The times a link carries, by part: { ceremony: '10:00' }. Anything malformed is ignored. */
 export function readTimes(where: string): Partial<Record<PartKey, string>> {
-  const carried = readLink(where).times
+  return fromLetters(readLink(where).times)
+}
+
+function fromLetters(carried: Record<string, string>): Partial<Record<PartKey, string>> {
   const out: Partial<Record<PartKey, string>> = {}
   for (const key of Object.keys(LETTER) as PartKey[]) {
     const m = /^([01]\d|2[0-3])([0-5]\d)$/.exec(carried[LETTER[key]] ?? '')
@@ -42,4 +47,29 @@ export function timesForLink(times: Partial<Record<PartKey, string>>, defaults: 
   return Object.fromEntries(
     (Object.keys(LETTER) as PartKey[]).filter((k) => times[k] && times[k] !== defaults[k]).map((k) => [LETTER[k], times[k]!.replace(':', '')]),
   )
+}
+
+// The saved row's times, fetched once per page (every card shares it); null when there's no id, no web app, or no answer.
+let saved: Promise<Partial<Record<PartKey, string>> | null> | null = null
+function savedTimes(url: string, id: string) {
+  saved ??= fetch(`${url}?id=${encodeURIComponent(id)}`)
+    .then((r) => r.json())
+    .then((d) => (d && d.t && typeof d.t === 'object' ? fromLetters(d.t) : null))
+    .catch(() => null)
+  return saved
+}
+
+/** This page's times by part: the link's own at once, then its saved row's (from the sheet) when they arrive. */
+export function useTimes(savedLinksUrl: string) {
+  const [times, setTimes] = useState(() => readTimes(location.search + location.hash))
+  useEffect(() => {
+    const id = readLink(location.search + location.hash).id
+    if (!id || !savedLinksUrl) return
+    let live = true
+    savedTimes(savedLinksUrl, id).then((t) => live && t && setTimes((now) => ({ ...now, ...t })))
+    return () => {
+      live = false
+    }
+  }, [savedLinksUrl])
+  return times
 }

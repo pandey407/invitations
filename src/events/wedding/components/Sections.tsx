@@ -7,7 +7,7 @@ import feetUrl from '../assets/feet.webp'
 import kalashUrl from '../assets/kalash.webp'
 import sindoorUrl from '../assets/sindoor-potey.webp'
 import { invite } from '../invite'
-import { readTimes, sayTime, type PartKey } from '../times'
+import { sayTime, useTimes, type PartKey } from '../times'
 
 // The wedding invite's pages, one column on the soft red lokta: the opening (brass bells hanging over a gold arch
 // with the names, the bride's Banarasi draped at the top corners, banana leaves at the foot), the saptapadi, the
@@ -145,12 +145,11 @@ const ART_PLACE: Record<string, { pieces: { at: string; flip?: boolean }[]; room
 
 type Part = { title: Pair; date: Pair; at: string; onwards: boolean; place: Pair; address: Pair; mapLink: string }
 
-// The link's own times, if it carries any (/wedding/settings), else each part's from content.ts.
-const linkTimes = readTimes(location.search + location.hash)
-
 // One part of the day: its title, date and time, and where (with directions).
 function PartCard({ part, art }: { part: Part; art: string }) {
   const { lang, t } = useLang()
+  // The link's times (/wedding/settings), or its saved row's in the guest sheet, else the part's own from content.ts.
+  const linkTimes = useTimes(invite.savedLinks)
   const en = lang === 'en'
   const time = sayTime(linkTimes[art as PartKey] ?? part.at, part.onwards)
   const place = part.mapLink ? (
