@@ -7,7 +7,7 @@
 // The guest-list sheet (scripts/wedding/invite-links.gs) makes {n, c, t}; the link maker (/wedding/settings) can also
 // add l, and may leave out the name. Pure (no browser APIs) so scripts can make the links too.
 export type Guest = { name: string; chu: boolean }
-export type LinkData = { guest: Guest | null; times: Record<string, string>; lang: 'en' | null; id: string | null }
+export type LinkData = { guest: Guest | null; times: Record<string, string>; lang: 'en' | null; id: string | null; code: string | null }
 
 // base64url of UTF-8 JSON: short, survives WhatsApp, and doesn't read as anything in the address bar.
 const toB64 = (s: string) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
@@ -38,7 +38,7 @@ const CORRECTIONS: Record<string, Record<string, unknown>> = {
 // every personal link is the same page, whose preview they already have (Messenger only shows previews it has).
 // Older links have it as ?g=…, which still works. `where` is location.search + location.hash.
 export function readLink(where: string): LinkData {
-  const empty: LinkData = { guest: null, times: {}, lang: null, id: null }
+  const empty: LinkData = { guest: null, times: {}, lang: null, id: null, code: null }
   const g = /[?#&]g=([A-Za-z0-9_-]+)/.exec(where)?.[1]
   if (!g) return empty
   try {
@@ -49,10 +49,14 @@ export function readLink(where: string): LinkData {
       times: times as Record<string, string>,
       lang: l === 'en' ? 'en' : null,
       id: typeof i === 'string' && /^[A-Za-z0-9]{4,16}$/.test(i) ? i : null,
+      code: g,
     }
   } catch {
     return empty
   }
 }
+
+/** The key of a link's row in the guest sheet's "Sent links" tab: its id, or for a link made before ids, its code. */
+export const savedKey = (link: LinkData) => link.id ?? link.code
 
 export const readGuest = (where: string) => readLink(where).guest

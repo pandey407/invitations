@@ -5,7 +5,7 @@
 // A link made by the link maker also carries an id, and its row in the guest sheet's "Sent links" tab can change the
 // times after it's sent (useTimes).
 import { useEffect, useState } from 'react'
-import { readLink } from '../../envelope/guest'
+import { readLink, savedKey } from '../../envelope/guest'
 import type { Pair } from '../../lib/lang'
 
 export type PartKey = 'janti' | 'ceremony' | 'reception'
@@ -27,6 +27,8 @@ export function sayTime(at: string, onwards = false): Pair {
     en: `${h12}:${mm} ${h < 12 ? 'AM' : 'PM'}${onwards ? ' onwards' : ''}`,
   }
 }
+
+export { fromLetters }
 
 /** The times a link carries, by part: { ceremony: '10:00' }. Anything malformed is ignored. */
 export function readTimes(where: string): Partial<Record<PartKey, string>> {
@@ -63,7 +65,7 @@ function savedTimes(url: string, id: string) {
 export function useTimes(savedLinksUrl: string) {
   const [times, setTimes] = useState(() => readTimes(location.search + location.hash))
   useEffect(() => {
-    const id = readLink(location.search + location.hash).id
+    const id = savedKey(readLink(location.search + location.hash))
     if (!id || !savedLinksUrl) return
     let live = true
     savedTimes(savedLinksUrl, id).then((t) => live && t && setTimes((now) => ({ ...now, ...t })))

@@ -17,11 +17,14 @@
  *   POST {key, action:'save', id, side, name, chu, english, times:{janti,ceremony,reception}, link} → adds a row
  *   POST {key, action:'list'}                       → every saved link
  *   POST {key, action:'times', id, times:{…}}       → changes that link's times
+ *   POST {key, action:'set', id, side, name, chu, english, times, link} → a link pasted into the link maker: changes
+ *        its times, adding its row first if it has none (links sent before ids are kept under their whole code)
  */
 const SENT_TAB = 'Sent links';
 const SENT_HEAD = ['ID', 'Made', 'Side', 'Receiver', 'चु:', 'English', 'Janti', 'Ceremony', 'Reception', 'Link', 'Note'];
 const TIME_COLS = { j: 7, c: 8, r: 9 }; // 1-based columns of the times above
 const PARTS = { janti: 'j', ceremony: 'c', reception: 'r' };
+const ID_RE = /^[A-Za-z0-9_-]{4,400}$/; // a saved link's id, or for a link without one (sent before ids), its whole code
 const PASSCODE = 'change-me'; // the link maker asks for this before it saves, lists or changes links
 
 function sentSheet_() {
@@ -71,7 +74,7 @@ function findRow_(sheet, id) {
 
 function doGet(e) {
   const id = String((e && e.parameter && e.parameter.id) || '');
-  if (!/^[A-Za-z0-9]{4,16}$/.test(id)) return json_({ error: 'id' });
+  if (!ID_RE.test(id)) return json_({ error: 'id' });
   const sheet = sentSheet_();
   const row = findRow_(sheet, id);
   if (!row) return json_({ error: 'missing' });
@@ -117,9 +120,13 @@ function doPost(e) {
       });
     }
     const id = String(d.id || '');
-    if (!/^[A-Za-z0-9]{4,16}$/.test(id)) return json_({ error: 'id' });
+    if (!ID_RE.test(id)) return json_({ error: 'id' });
     const row = findRow_(sheet, id);
-    if (d.action === 'times') {
+    if (d.action === 'set' && !row) {
+      appendLink_(sheet, id, d);
+      return json_({ ok: true, t: timesOf_(sheet.getRange(sheet.getLastRow(), 1, 1, SENT_HEAD.length).getValues()[0]) });
+    }
+    if (d.action === 'times' || d.action === 'set') {
       if (!row) return json_({ error: 'missing' });
       Object.keys(PARTS).forEach((part) => {
         if (part in times) sheet.getRange(row, TIME_COLS[PARTS[part]]).setValue(say_(hhmm_(times[part] || '')));
@@ -128,8 +135,18 @@ function doPost(e) {
     }
     if (d.action !== 'save') return json_({ error: 'action' });
     if (row) return json_({ ok: true, existed: true });
-    const clip = (v, n) => String(v || '').slice(0, n);
-    sheet.appendRow([
+    appendLink_(sheet, id, d);
+    return json_({ ok: true });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function appendLink_(sheet, id, d) {
+  const times = d.times || {};
+  const clip = (v, n) => String(v || '').slice(0, n);
+  sheet.getRange(sheet.getLastRow() + 1, 1).setNumberFormat('@');
+  sheet.appendRow([
       id,
       new Date(),
       clip(d.side, 40),
@@ -139,11 +156,7 @@ function doPost(e) {
       say_(hhmm_(times.janti || '')),
       say_(hhmm_(times.ceremony || '')),
       say_(hhmm_(times.reception || '')),
-      clip(d.link, 500),
+      clip(d.link, 600),
       '',
     ]);
-    return json_({ ok: true });
-  } finally {
-    lock.releaseLock();
-  }
 }

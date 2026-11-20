@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { linkParam } from '../../envelope/guest'
+import { linkParam, readLink, savedKey } from '../../envelope/guest'
 import { reception } from '../reception/content'
 import loktaUrl from './assets/lokta.webp'
 import { wedding } from './content'
-import { sayTime, timesForLink, type PartKey } from './times'
+import { fromLetters, sayTime, timesForLink, type PartKey } from './times'
 
 // The link maker (/wedding/settings, for us, not linked from the cards and kept out of search): pick whose side the
 // card is from, change any of the day's times, optionally address it to someone (with a चु: for a चुलेनिम्तो), and
@@ -301,6 +301,7 @@ export default function Settings() {
         )}
       </section>
 
+      {API && key && <PastedLink passcode={key} onSaved={() => setListVersion((v) => v + 1)} />}
       {API && <SentLinks passcode={key} setPasscode={setKey} version={listVersion} />}
     </main>
   )
@@ -467,5 +468,140 @@ function SentLink({ saved, passcode, onChange }: { saved: Saved; passcode: strin
         </div>
       )}
     </div>
+  )
+}
+
+// Which side a pasted link is from, by its path: /wedding/aarusha/ (bride), /reception/, else /wedding/ (groom).
+function sideOfPath(path: string): Side | null {
+  const p = path.replace(/^\/+|\/+$/g, '')
+  if (p === `wedding/${wedding.sides.bride.path}`) return 'bride'
+  if (p === reception.slug) return 'reception'
+  if (p === 'wedding') return 'groom'
+  return null
+}
+
+type Pasted = { side: Side; key: string; name: string; chu: boolean; english: boolean; times: Record<PartKey, string>; inSheet: boolean; link: string }
+
+// Paste any personal link already sent (old ?g= ones too): see what it carries, and change its times. The change is
+// kept in the guest sheet's "Sent links" tab under the link's id (or its whole code), which the card reads.
+function PastedLink({ passcode, onSaved }: { passcode: string; onSaved: () => void }) {
+  const [text, setText] = useState('')
+  const [found, setFound] = useState<Pasted | null>(null)
+  const [times, setTimes] = useState<Record<PartKey, string> | null>(null)
+  const [problem, setProblem] = useState<string | null>(null)
+  const [state, setState] = useState<'loading' | 'saving' | 'saved' | 'failed' | null>(null)
+
+  useEffect(() => {
+    setFound(null)
+    setTimes(null)
+    setProblem(null)
+    setState(null)
+    const raw = text.trim()
+    if (!raw) return
+    let url: URL
+    try {
+      url = new URL(raw)
+    } catch {
+      setProblem('That isn’t a link.')
+      return
+    }
+    const side = sideOfPath(url.pathname)
+    const data = readLink(url.search + url.hash)
+    const key = savedKey(data)
+    if (!side) return setProblem('That isn’t a wedding or reception invite link.')
+    if (!key) return setProblem('That’s the plain card (no guest code), so there’s nothing personal to change.')
+    const parts = SIDES.find((s) => s.key === side)!.parts
+    const carried = fromLetters(data.times)
+    const base = Object.fromEntries(parts.map((k) => [k, carried[k] ?? DEFAULTS[k]])) as Record<PartKey, string>
+    let live = true
+    setState('loading')
+    fetch(`${API}?id=${encodeURIComponent(key)}`)
+      .then((r) => r.json())
+      .catch(() => ({}))
+      .then((d) => {
+        if (!live) return
+        const saved = d && d.t ? fromLetters(d.t) : {}
+        const now = { ...base, ...Object.fromEntries(parts.filter((k) => saved[k]).map((k) => [k, saved[k]])) } as Record<PartKey, string>
+        setFound({ side, key, name: data.guest?.name ?? '', chu: data.guest?.chu ?? false, english: data.lang === 'en', times: now, inSheet: Boolean(d && d.t), link: raw })
+        setTimes(now)
+        setState(null)
+      })
+    return () => {
+      live = false
+    }
+  }, [text])
+
+  const parts = found ? SIDES.find((s) => s.key === found.side)!.parts : []
+  const changed = Boolean(found && times && parts.some((k) => times[k] !== found.times[k]))
+  const store = async () => {
+    if (!found || !times) return
+    setState('saving')
+    try {
+      const r = await callApi({ key: passcode, action: 'set', id: found.key, side: found.side, name: found.name, chu: found.chu, english: found.english, times, link: found.link })
+      if (r.ok) {
+        const now = { ...times, ...fromLetters(r.t ?? {}) }
+        setFound({ ...found, times: now, inSheet: true })
+        setTimes(now)
+        setState('saved')
+        onSaved()
+      } else setState('failed')
+    } catch {
+      setState('failed')
+    }
+  }
+
+  const Row = ({ label, children }: { label: string; children: ReactNode }) => (
+    <div className="flex items-baseline justify-between gap-3 border-b border-kagaz-gold/20 py-1.5 text-sm last:border-0">
+      <span className="opacity-70">{label}</span>
+      <span className="text-right font-semibold">{children}</span>
+    </div>
+  )
+
+  return (
+    <section className="rounded-3xl border border-kagaz-gold/30 bg-[#fbf1ec]/80 p-5 shadow-sm shadow-kagaz-ink/10">
+      <Label>Change a sent link</Label>
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        rows={2}
+        placeholder="Paste a link you sent"
+        className="w-full resize-none rounded-xl border border-kagaz-gold/40 bg-white px-3 py-2.5 font-mono text-sm"
+      />
+      {problem && <p className="mt-2 text-sm text-[#9a1b1b]">{problem}</p>}
+      {state === 'loading' && <p className="mt-2 text-sm opacity-70">Looking it up…</p>}
+      {found && times && (
+        <div className="mt-3 grid gap-3">
+          <div className="rounded-2xl border border-kagaz-gold/40 bg-white/60 px-4 py-2">
+            <Row label="Side">{SIDES.find((s) => s.key === found.side)!.label}</Row>
+            <Row label="Receiver">{found.name || '—'}</Row>
+            <Row label="चु: stamp">{found.chu ? 'Yes' : 'No'}</Row>
+            <Row label="Opens in">{found.english ? 'English' : 'Nepali'}</Row>
+            {parts.map((k) => (
+              <Row key={k} label={wedding.programme[k].title.en}>
+                {sayTime(found.times[k]).en}
+              </Row>
+            ))}
+            <Row label="Changed before">{found.inSheet ? 'Yes, in Sent links' : 'No'}</Row>
+          </div>
+          {parts.map((k) => (
+            <div key={k} className="flex flex-col gap-2">
+              <span className="font-semibold">{wedding.programme[k].title.en}</span>
+              <TimePicker value={times[k]} onChange={(at) => (setTimes({ ...times, [k]: at }), setState(null))} label={`Pasted link ${wedding.programme[k].title.en}`} />
+            </div>
+          ))}
+          <div className="grid grid-cols-[1fr_auto] gap-2">
+            <button type="button" disabled={!changed || state === 'saving'} onClick={store} className="rounded-xl bg-kagaz-ink px-4 py-2.5 font-semibold text-[#fbf1ec] disabled:opacity-40">
+              {state === 'saving' ? 'Saving…' : 'Save times'}
+            </button>
+            <a href={found.link} target="_blank" rel="noreferrer" className="rounded-xl border border-kagaz-gold/50 px-4 py-2.5 text-center font-semibold">
+              Open
+            </a>
+          </div>
+          {state === 'saved' && <p className="text-sm opacity-70">Saved ✓ The same link now shows these times.</p>}
+          {state === 'failed' && <p className="text-sm text-[#9a1b1b]">Couldn’t save: if you just updated the script, deploy it as a new version.</p>}
+          <p className="text-xs opacity-60">The name, चु: and language are part of the link itself; to change those, make a new link above.</p>
+        </div>
+      )}
+    </section>
   )
 }
