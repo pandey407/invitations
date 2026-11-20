@@ -5,7 +5,8 @@
 // A link made by the link maker also carries an id, and its row in the guest sheet's "Sent links" tab can change the
 // times after it's sent (useTimes).
 import { useEffect, useState } from 'react'
-import { readLink, savedKey } from '../../envelope/guest'
+import { readLink } from '../../envelope/guest'
+import { savedRow } from '../../envelope/saved'
 import type { Pair } from '../../lib/lang'
 
 export type PartKey = 'janti' | 'ceremony' | 'reception'
@@ -51,24 +52,12 @@ export function timesForLink(times: Partial<Record<PartKey, string>>, defaults: 
   )
 }
 
-// The saved row's times, fetched once per page (every card shares it); null when there's no id, no web app, or no answer.
-let saved: Promise<Partial<Record<PartKey, string>> | null> | null = null
-function savedTimes(url: string, id: string) {
-  saved ??= fetch(`${url}?id=${encodeURIComponent(id)}`)
-    .then((r) => r.json())
-    .then((d) => (d && d.t && typeof d.t === 'object' ? fromLetters(d.t) : null))
-    .catch(() => null)
-  return saved
-}
-
-/** This page's times by part: the link's own at once, then its saved row's (from the sheet) when they arrive. */
+/** This page's times by part: the link's own at once, then its saved row's (from the guest sheet) when they arrive. */
 export function useTimes(savedLinksUrl: string) {
   const [times, setTimes] = useState(() => readTimes(location.search + location.hash))
   useEffect(() => {
-    const id = savedKey(readLink(location.search + location.hash))
-    if (!id || !savedLinksUrl) return
     let live = true
-    savedTimes(savedLinksUrl, id).then((t) => live && t && setTimes((now) => ({ ...now, ...t })))
+    savedRow(savedLinksUrl).then((row) => live && row && setTimes((now) => ({ ...now, ...fromLetters(row.times) })))
     return () => {
       live = false
     }

@@ -41,7 +41,7 @@ export async function callApi(body: Record<string, unknown>) {
 export const colon = (t: string) => `${t.slice(0, 2)}:${t.slice(2)}`
 export const LETTER: Record<PartKey, string> = { janti: 'j', ceremony: 'c', reception: 'r' }
 
-export type Saved = { id: string; made: string; side: string; name: string; t: Record<string, string>; link: string }
+export type Saved = { id: string; made: string; side: string; name: string; chu?: boolean; english?: boolean; t: Record<string, string>; link: string }
 
 export const DEFAULTS = Object.fromEntries(
   (Object.keys(wedding.programme) as PartKey[]).map((k) => [k, wedding.programme[k].at]),

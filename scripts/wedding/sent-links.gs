@@ -1,8 +1,9 @@
 /**
  * Saved links: every link made with the link maker (/wedding/settings) is kept as a row in the "Sent links" tab, and
- * the invite reads its times from that row when it opens, so a link already sent can still be changed. The link
- * maker lists the saved links and changes their times (behind the passcode below); the tab can be edited by hand too
- * (times as "10:00 AM").
+ * the invite reads its details from that row when it opens (the receiver's name, the चु: stamp, English or not, and the
+ * times), so a link already sent can still be changed. The Sent links page (/wedding/settings/sent) lists the saved
+ * links and changes them (behind the passcode below); the tab can be edited by hand too (times as "10:00 AM",
+ * चु: and English as Yes or blank).
  *
  * Install (once), in the same Apps Script project as invite-links.gs:
  *   1. Extensions → Apps Script → + → Script, name it "sent-links", paste this file.
@@ -13,12 +14,12 @@
  * After editing this file later: Deploy → Manage deployments → edit → Version "New version" → Deploy (same URL).
  *
  * The web app:
- *   GET  ?id=…  → {"t":{"j":"0830","c":"1000"}}: only that link's times, never a name (what guests' cards ask).
+ *   GET  ?id=…  → {"n":"…","c":1,"l":"en","t":{"j":"0830","c":"1000"}}: that one link's details (what its card asks;
+ *               the id is in the link, which carries the same name anyway)
  *   POST {key, action:'save', id, side, name, chu, english, times:{janti,ceremony,reception}, link} → adds a row
  *   POST {key, action:'list'}                       → every saved link
- *   POST {key, action:'times', id, times:{…}}       → changes that link's times
- *   POST {key, action:'set', id, side, name, chu, english, times, link} → a link pasted into the link maker: changes
- *        its times, adding its row first if it has none (links sent before ids are kept under their whole code)
+ *   POST {key, action:'set', id, side, name, chu, english, times, link} → changes a link's details (any of name, chu,
+ *        english, times given), adding its row first if it has none (links sent before ids are kept under their code)
  */
 const SENT_TAB = 'Sent links';
 const SENT_HEAD = ['ID', 'Made', 'Side', 'Receiver', 'चु:', 'English', 'Janti', 'Ceremony', 'Reception', 'Link', 'Note'];
@@ -39,6 +40,12 @@ function sentSheet_() {
     sheet.setColumnWidth(10, 360);
   }
   return sheet;
+}
+
+/** Text as typed, never read as a formula. */
+function text_(v, n) {
+  const s = String(v || '').slice(0, n);
+  return /^[=+\-@]/.test(s) ? "'" + s : s;
 }
 
 function json_(data) {
@@ -72,13 +79,17 @@ function findRow_(sheet, id) {
   return 0;
 }
 
+function detailsOf_(r) {
+  return { n: String(r[3]), c: /^y/i.test(String(r[4])) ? 1 : 0, l: /^y/i.test(String(r[5])) ? 'en' : 'np', t: timesOf_(r) };
+}
+
 function doGet(e) {
   const id = String((e && e.parameter && e.parameter.id) || '');
   if (!ID_RE.test(id)) return json_({ error: 'id' });
   const sheet = sentSheet_();
   const row = findRow_(sheet, id);
   if (!row) return json_({ error: 'missing' });
-  return json_({ t: timesOf_(sheet.getRange(row, 1, 1, SENT_HEAD.length).getValues()[0]) });
+  return json_(detailsOf_(sheet.getRange(row, 1, 1, SENT_HEAD.length).getValues()[0]));
 }
 
 function timesOf_(cells) {
@@ -114,6 +125,8 @@ function doPost(e) {
             made: r[1] instanceof Date ? r[1].toISOString() : String(r[1]),
             side: String(r[2]),
             name: String(r[3]),
+            chu: /^y/i.test(String(r[4])),
+            english: /^y/i.test(String(r[5])),
             t: timesOf_(r),
             link: String(r[9]),
           })),
@@ -124,14 +137,17 @@ function doPost(e) {
     const row = findRow_(sheet, id);
     if (d.action === 'set' && !row) {
       appendLink_(sheet, id, d);
-      return json_({ ok: true, t: timesOf_(sheet.getRange(sheet.getLastRow(), 1, 1, SENT_HEAD.length).getValues()[0]) });
+      return json_(Object.assign({ ok: true }, detailsOf_(sheet.getRange(sheet.getLastRow(), 1, 1, SENT_HEAD.length).getValues()[0])));
     }
     if (d.action === 'times' || d.action === 'set') {
       if (!row) return json_({ error: 'missing' });
+      if ('name' in d) sheet.getRange(row, 4).setValue(text_(d.name, 80));
+      if ('chu' in d) sheet.getRange(row, 5).setValue(d.chu ? 'Yes' : '');
+      if ('english' in d) sheet.getRange(row, 6).setValue(d.english ? 'Yes' : '');
       Object.keys(PARTS).forEach((part) => {
         if (part in times) sheet.getRange(row, TIME_COLS[PARTS[part]]).setValue(say_(hhmm_(times[part] || '')));
       });
-      return json_({ ok: true, t: timesOf_(sheet.getRange(row, 1, 1, SENT_HEAD.length).getValues()[0]) });
+      return json_(Object.assign({ ok: true }, detailsOf_(sheet.getRange(row, 1, 1, SENT_HEAD.length).getValues()[0])));
     }
     if (d.action !== 'save') return json_({ error: 'action' });
     if (row) return json_({ ok: true, existed: true });
@@ -144,7 +160,7 @@ function doPost(e) {
 
 function appendLink_(sheet, id, d) {
   const times = d.times || {};
-  const clip = (v, n) => String(v || '').slice(0, n);
+  const clip = text_;
   sheet.getRange(sheet.getLastRow() + 1, 1).setNumberFormat('@');
   sheet.appendRow([
       id,

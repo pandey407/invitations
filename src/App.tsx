@@ -1,7 +1,8 @@
-import { lazy, Suspense, useState, type ComponentType } from 'react'
+import { lazy, Suspense, useEffect, useState, type ComponentType } from 'react'
 import { LangProvider } from './components/LangProvider'
 import { Envelope } from './envelope/Envelope'
 import { readGuest } from './envelope/guest'
+import { savedRow } from './envelope/saved'
 import { resolve, type Side } from './events'
 import { route } from './route'
 
@@ -45,15 +46,25 @@ function Shell({ event, side }: { event: string; side: Side }) {
   const [opened, setOpened] = useState(() => !hasEnvelope || new URLSearchParams(location.search).has('open'))
   // The invite's fade-ups start as the envelope *begins* to open, so it rises into view between the flaps.
   const [revealing, setRevealing] = useState(opened)
+  // A link changed after it was sent (its row in the guest sheet: src/envelope/saved.ts) shows the changed name.
+  const savedLinks = (text as { savedLinks?: string }).savedLinks
+  const [guest, setGuest] = useState(() => readGuest(location.search + location.hash))
+  useEffect(() => {
+    let live = true
+    savedRow(savedLinks).then((row) => live && row && setGuest(row.guest))
+    return () => {
+      live = false
+    }
+  }, [savedLinks])
 
   return (
-    <LangProvider>
+    <LangProvider savedLinks={savedLinks}>
       {!opened && hasEnvelope && (
         <EventEnvelope
           shloka={text.shloka}
           invocation={text.invocation}
           openLabel={text.openLabel}
-          guest={readGuest(location.search + location.hash)}
+          guest={guest}
           onOpenStart={() => setRevealing(true)}
           onOpen={() => setOpened(true)}
         />
