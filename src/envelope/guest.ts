@@ -25,6 +25,12 @@ export function linkParam({ name = '', chu = false, times = {}, english = false 
 /** Just the guest (what the sheet's links carry). */
 export const guestParam = ({ name, chu }: Guest) => linkParam({ name, chu })
 
+// Links already sent that need a change: the code as sent → what it should carry instead (a sent link can't be edited).
+const CORRECTIONS: Record<string, Record<string, unknown>> = {
+  // To CCU 1 Family (bride's side): sent with the ceremony at 11:00, it's at 10:00.
+  eyJuIjoiVG8gQ0NVIDEgRmFtaWx5IiwidCI6eyJjIjoiMTEwMCJ9LCJsIjoiZW4ifQ: { n: 'To CCU 1 Family', t: { c: '1000' }, l: 'en' },
+}
+
 /** Everything a link carries; a missing or mangled code still opens the invite, just plainly. */
 // The code rides after a # (…/wedding/#g=…): browsers never send that part, so to Facebook and other link previewers
 // every personal link is the same page, whose preview they already have (Messenger only shows previews it has).
@@ -34,7 +40,7 @@ export function readLink(where: string): LinkData {
   const g = /[?#&]g=([A-Za-z0-9_-]+)/.exec(where)?.[1]
   if (!g) return empty
   try {
-    const { n, c, t, l } = JSON.parse(fromB64(g))
+    const { n, c, t, l } = CORRECTIONS[g] ?? JSON.parse(fromB64(g))
     const times = t && typeof t === 'object' ? Object.fromEntries(Object.entries(t).filter(([, v]) => typeof v === 'string')) : {}
     return {
       guest: typeof n === 'string' && n.trim() ? { name: n.trim().slice(0, 80), chu: c === 1 } : null,
