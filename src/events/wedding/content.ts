@@ -31,7 +31,7 @@ export const wedding = {
       path: '',
       first: 'groom',
       parts: ['janti', 'ceremony', 'reception'],
-      times: { ceremony: '10:00' }, // this card's own times where they differ from the programme's below
+      times: {}, // this card's own times where they differ from the programme's below, e.g. { ceremony: '10:00' }
       contacts: ['9841419906', '9864155123'],
       familyLine: { np: 'विनीत: पाण्डे परिवार', en: 'With love, the Pandey family' },
     },
@@ -103,7 +103,7 @@ export const wedding = {
     ceremony: {
       title: { np: 'शुभ विवाह', en: 'Wedding Ceremony' },
       date: { np: 'मंसिर ९, २०८३ बुधवार', en: 'Wednesday, 25 November 2026' },
-      at: '10:30', // the bride's side; the groom's side says 10:00 (sides.both.times)
+      at: '10:30', // both sides (a side can differ: sides.<side>.times)
       onwards: false,
       place: { np: 'लर्ड प्यालेस ब्यांक्वेट', en: 'Lord Palace Banquet' },
       address: { np: 'टोखा रोड, काठमाडौं', en: 'Tokha Road, Kathmandu' },
