@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { readLink, savedKey } from '../../envelope/guest'
 import { reception } from '../reception/content'
 import { wedding } from './content'
-import { API, callApi, colon, DEFAULTS, KEY_STORE, Label, LETTER, readKey, SIDES, TimePicker, usePageLook, type Saved, type Side } from './Settings'
+import { API, callApi, colon, defaultsFor, KEY_STORE, Label, LETTER, readKey, SIDES, TimePicker, usePageLook, type Saved, type Side } from './Settings'
 import { fromLetters, sayTime, type PartKey } from './times'
 
 // Sent links (/wedding/settings/sent, reached from the link maker): paste a link already sent to see what it
@@ -243,7 +243,7 @@ function SentLink({ saved, passcode, onChange }: { saved: Saved; passcode: strin
   const parts = useMemo(() => side?.parts ?? (Object.keys(LETTER) as PartKey[]).filter((k) => saved.t[LETTER[k]]), [side, saved.t])
   const [open, setOpen] = useState(false)
   const initial = useMemo(
-    () => detailsFrom(saved, parts, { name: '', chu: false, english: false, times: { ...DEFAULTS, ...Object.fromEntries(parts.map((k) => [k, saved.t[LETTER[k]] ? colon(saved.t[LETTER[k]]) : DEFAULTS[k]])) } }),
+    () => detailsFrom(saved, parts, { name: '', chu: false, english: false, times: { ...defaultsFor(saved.side), ...Object.fromEntries(parts.map((k) => [k, saved.t[LETTER[k]] ? colon(saved.t[LETTER[k]]) : defaultsFor(saved.side)[k]])) } }),
     [saved, parts],
   )
   const made = new Date(saved.made)
@@ -326,7 +326,7 @@ function PastedLink({ passcode, setPasscode, onSaved }: { passcode: string; setP
       name: data.guest?.name ?? '',
       chu: data.guest?.chu ?? false,
       english: data.lang === 'en',
-      times: Object.fromEntries(parts.map((k) => [k, carried[k] ?? DEFAULTS[k]])) as Record<PartKey, string>,
+      times: Object.fromEntries(parts.map((k) => [k, carried[k] ?? defaultsFor(side)[k]])) as Record<PartKey, string>,
     }
     let live = true
     setLoading(true)

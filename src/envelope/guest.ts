@@ -37,7 +37,10 @@ export function readLink(where: string): LinkData {
   if (!g) return empty
   try {
     const { n, c, t, l, i } = JSON.parse(fromB64(g))
-    const times = t && typeof t === 'object' ? Object.fromEntries(Object.entries(t).filter(([, v]) => typeof v === 'string')) : {}
+    // The guest sheet's links used to carry its times ({c: '0830'} or {r: '1730'}); now they follow the card's own
+    // times (content.ts), so a change there reaches every guest without resending: that old stamp is ignored.
+    const sheetStamp = !i && (JSON.stringify(t) === '{"c":"0830"}' || JSON.stringify(t) === '{"r":"1730"}')
+    const times = t && typeof t === 'object' && !sheetStamp ? Object.fromEntries(Object.entries(t).filter(([, v]) => typeof v === 'string')) : {}
     return {
       guest: typeof n === 'string' && n.trim() ? { name: n.trim().slice(0, 80), chu: c === 1 } : null,
       times: times as Record<string, string>,

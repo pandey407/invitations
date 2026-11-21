@@ -15,10 +15,11 @@ import { sayTime, timesForLink, type PartKey } from './times'
 
 export type Side = 'groom' | 'bride' | 'reception'
 
-export const SIDES: { key: Side; label: string; sub: string; path: string; parts: readonly PartKey[] }[] = [
-  { key: 'groom', label: 'Groom’s side', sub: 'अस्लेष · janti, wedding, reception', path: 'wedding/', parts: wedding.sides.both.parts },
-  { key: 'bride', label: 'Bride’s side', sub: 'आरुषा · wedding', path: `wedding/${wedding.sides.bride.path}/`, parts: wedding.sides.bride.parts },
-  { key: 'reception', label: 'Reception only', sub: 'प्रीतिभोज', path: `${reception.slug}/`, parts: reception.sides.both.parts },
+const sideTimes = (s: object) => ((s as { times?: Partial<Record<PartKey, string>> }).times ?? {})
+export const SIDES: { key: Side; label: string; sub: string; path: string; parts: readonly PartKey[]; times: Partial<Record<PartKey, string>> }[] = [
+  { key: 'groom', label: 'Groom’s side', sub: 'अस्लेष · janti, wedding, reception', path: 'wedding/', parts: wedding.sides.both.parts, times: sideTimes(wedding.sides.both) },
+  { key: 'bride', label: 'Bride’s side', sub: 'आरुषा · wedding', path: `wedding/${wedding.sides.bride.path}/`, parts: wedding.sides.bride.parts, times: sideTimes(wedding.sides.bride) },
+  { key: 'reception', label: 'Reception only', sub: 'प्रीतिभोज', path: `${reception.slug}/`, parts: reception.sides.both.parts, times: sideTimes(reception.sides.both) },
 ]
 
 export const API = wedding.savedLinks
@@ -46,6 +47,8 @@ export type Saved = { id: string; made: string; side: string; name: string; chu?
 export const DEFAULTS = Object.fromEntries(
   (Object.keys(wedding.programme) as PartKey[]).map((k) => [k, wedding.programme[k].at]),
 ) as Record<PartKey, string>
+/** The times a side's card shows when its link carries none (the groom's side has the wedding at 10:00). */
+export const defaultsFor = (side: string) => ({ ...DEFAULTS, ...SIDES.find((s) => s.key === side)?.times }) as Record<PartKey, string>
 
 // Copy text on any phone or laptop: the Clipboard API where the browser allows it, else the old select-and-copy
 // (what older iPhones and in-app browsers need: a real, selected text field).
@@ -149,7 +152,7 @@ export function usePageLook(title: string) {
 
 export default function Settings() {
   const [side, setSide] = useState<Side>('groom')
-  const [times, setTimes] = useState<Record<PartKey, string>>(DEFAULTS)
+  const [times, setTimes] = useState<Record<PartKey, string>>(() => defaultsFor('groom'))
   const [name, setName] = useState('')
   const [chu, setChu] = useState(false)
   const [english, setEnglish] = useState(false)
@@ -174,7 +177,7 @@ export default function Settings() {
   const saving = Boolean(API && key)
   const link = useMemo(() => {
     // Everything rides in one code after a #, like the sheet's names: #g=…
-    const g = linkParam({ name, chu, times: timesForLink(shownTimes, DEFAULTS), english, id: saving ? id : '' })
+    const g = linkParam({ name, chu, times: timesForLink(shownTimes, defaultsFor(side)), english, id: saving ? id : '' })
     return wedding.siteUrl + chosen.path + (g ? `#g=${g}` : '')
   }, [chosen, shownTimes, name, chu, english, id, saving])
 
@@ -229,7 +232,7 @@ export default function Settings() {
             <button
               key={s.key}
               type="button"
-              onClick={() => setSide(s.key)}
+              onClick={() => (setSide(s.key), setTimes(defaultsFor(s.key)))}
               aria-pressed={side === s.key}
               className={`rounded-2xl border px-4 py-3 text-left transition-colors ${side === s.key ? 'border-kagaz-ink bg-kagaz-ink text-[#fbf1ec]' : 'border-kagaz-gold/40 bg-white/60 hover:bg-white'}`}
             >
@@ -243,7 +246,7 @@ export default function Settings() {
       <section className="rounded-3xl border border-kagaz-gold/30 bg-[#fbf1ec]/80 p-5 shadow-sm shadow-kagaz-ink/10">
         <div className="flex items-baseline justify-between">
           <Label>Times</Label>
-          <button type="button" onClick={() => setTimes(DEFAULTS)} className="text-xs underline decoration-kagaz-gold/60 underline-offset-4">
+          <button type="button" onClick={() => setTimes(defaultsFor(side))} className="text-xs underline decoration-kagaz-gold/60 underline-offset-4">
             Reset
           </button>
         </div>

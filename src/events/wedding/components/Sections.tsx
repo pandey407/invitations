@@ -151,7 +151,8 @@ function PartCard({ part, art }: { part: Part; art: string }) {
   // The link's times (/wedding/settings), or its saved row's in the guest sheet, else the part's own from content.ts.
   const linkTimes = useTimes(invite.savedLinks)
   const en = lang === 'en'
-  const time = sayTime(linkTimes[art as PartKey] ?? part.at, part.onwards)
+  const sideTimes = (invite as { times?: Partial<Record<PartKey, string>> }).times
+  const time = sayTime(linkTimes[art as PartKey] ?? sideTimes?.[art as PartKey] ?? part.at, part.onwards)
   const place = part.mapLink ? (
     <a href={part.mapLink} target="_blank" rel="noreferrer" className="underline decoration-kagaz-gold/60 underline-offset-4">
       {t(part.place)}

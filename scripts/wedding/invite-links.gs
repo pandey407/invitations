@@ -23,7 +23,6 @@
  */
 const SITE = 'https://invite.ashleshpandey.com.np/';
 const COLS = 11; // A..K
-const TIMES = { ceremony: '0830', reception: '1730' }; // HHMM, 24-hour: the times the sheet's links show
 
 function onOpen() {
   SpreadsheetApp.getUi()
@@ -146,11 +145,10 @@ function INVITE_LINK(name, askName, physical, wedding, chu, nepali) {
   if (/\*\s*\d/.test(name)) return 'Hold: several guests';
   const shown = String(nepali || '').trim();
   if (!shown) return 'Needs Nepali name';
-  // The time each link shows, in its code (src/envelope/guest.ts): the wedding ceremony at 8:30 AM for our wedding
-  // guests (the card's own default is 10:30), the reception at 5:30 PM.
+  // No times in the link: the card shows its own (src/events/wedding/content.ts), so changing them there changes
+  // every guest's card without resending.
   const data = { n: shown };
   if (chu === true) data.c = 1;
-  data.t = wedding === true ? { c: TIMES.ceremony } : { r: TIMES.reception };
   const payload = JSON.stringify(data);
   const token = Utilities.base64EncodeWebSafe(payload, Utilities.Charset.UTF_8).replace(/=+$/, '');
   // After a # (not ?): link previewers don't see it, so every link gets the page's ready-made preview.
