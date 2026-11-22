@@ -4,7 +4,10 @@ import { readLink, savedKey, type Guest } from './guest'
 // details changed after the link was sent (the receiver's name, the चु: stamp, the language, the times), which win
 // over what the link itself carries. Fetched once per page, by the link's id (or, for a link made before ids, its
 // code); null when there's no row, no web app, or no answer.
-export type SavedRow = { guest: Guest | null; lang: 'en' | 'np' | null; times: Record<string, string> }
+export type SavedRow = { guest: Guest | null; lang: 'en' | 'np' | null; times: Record<string, string>; path: string | null }
+
+// The card each side opens (the sheet's Side column): a link moved to another side opens that card instead.
+const SIDE_PATHS: Record<string, string> = { groom: '/wedding/', bride: '/wedding/aarusha/', reception: '/reception/' }
 
 let pending: Promise<SavedRow | null> | null = null
 
@@ -20,9 +23,18 @@ export function savedRow(url: string | undefined): Promise<SavedRow | null> {
       return {
         guest: name ? { name, chu: d.c === 1 } : null,
         lang: d.l === 'en' || d.l === 'np' ? d.l : null,
+        path: SIDE_PATHS[d.s] ?? null,
         times: d.t && typeof d.t === 'object' ? Object.fromEntries(Object.entries(d.t).filter(([, v]) => typeof v === 'string')) as Record<string, string> : {},
       }
     })
     .catch(() => null)
   return pending
+}
+
+/** Open the card a saved link was moved to (its row's side), if that isn't this page. */
+export function followMove(url: string | undefined) {
+  savedRow(url).then((row) => {
+    const here = location.pathname.replace(/\/*$/, '/')
+    if (row?.path && row.path !== here) location.replace(row.path + location.search + location.hash)
+  })
 }

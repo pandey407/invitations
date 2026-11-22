@@ -50,7 +50,8 @@ export const mehendi = {
     note: { np: 'नाच्ने जुत्ता लिएर आउनुहोला!', en: 'Bring your dancing shoes!' },
   },
   dateLabel: { np: 'मंसिर ७, २०८३ सोमवार', en: 'Monday, 23 November 2026' },
-  time: { np: 'दिउँसो ३ बजेदेखि', en: '3 PM onwards' },
+  time: { np: 'दिउँसो २:३० बजे', en: '2:30 PM' },
+  timeNote: { np: 'ढिलो नगर्नुहोला, रमाइलो छुट्ला!', en: 'Don’t be late, you’ll miss the fun!' }, // under the time
   venue: {
     name: { np: 'एन स्पेस', en: 'En Space' },
     address: { np: 'चुनदेवी, बक्रारेखा गल्ली, काठमाडौं', en: 'Chundevi, Bakrarekha Galli, Kathmandu' },

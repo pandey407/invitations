@@ -186,7 +186,9 @@ export default function Settings() {
     if (!saving || (savedAs?.id === id && savedAs.key === content)) return
     setSaveState('saving')
     try {
-      const r = await callApi({ key, action: 'save', id, side, name: name.trim(), chu: chu && Boolean(name.trim()), english, times: shownTimes, link })
+      // only times that differ from the card's own, so a change to those still reaches this link
+      const differing = Object.fromEntries(Object.entries(shownTimes).map(([k, v]) => [k, v === defaultsFor(side)[k as PartKey] ? '' : v]))
+      const r = await callApi({ key, action: 'save', id, side, name: name.trim(), chu: chu && Boolean(name.trim()), english, times: differing, link })
       if (r.ok) {
         setSavedAs({ id, key: content })
         setSaveState('saved')

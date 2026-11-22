@@ -14,12 +14,13 @@
  * After editing this file later: Deploy → Manage deployments → edit → Version "New version" → Deploy (same URL).
  *
  * The web app:
- *   GET  ?id=…  → {"n":"…","c":1,"l":"en","t":{"j":"0830","c":"1000"}}: that one link's details (what its card asks;
+ *   GET  ?id=…  → {"s":"groom","n":"…","c":1,"l":"en","t":{"j":"0830","c":"1000"}}: that one link's details (its
+ *               side: groom, bride or reception, which card it opens; what its card asks;
  *               the id is in the link, which carries the same name anyway)
  *   POST {key, action:'save', id, side, name, chu, english, times:{janti,ceremony,reception}, link} → adds a row
  *   POST {key, action:'list'}                       → every saved link
- *   POST {key, action:'set', id, side, name, chu, english, times, link} → changes a link's details (any of name, chu,
- *        english, times given), adding its row first if it has none (links sent before ids are kept under their code)
+ *   POST {key, action:'set', id, side, name, chu, english, times, link} → changes a link's details (any of side, name,
+ *        chu, english, times given; a new side moves the link to that card), adding its row first if it has none (links sent before ids are kept under their code)
  */
 const SENT_TAB = 'Sent links';
 const SENT_HEAD = ['ID', 'Made', 'Side', 'Receiver', 'चु:', 'English', 'Janti', 'Ceremony', 'Reception', 'Link', 'Note'];
@@ -80,7 +81,7 @@ function findRow_(sheet, id) {
 }
 
 function detailsOf_(r) {
-  return { n: String(r[3]), c: /^y/i.test(String(r[4])) ? 1 : 0, l: /^y/i.test(String(r[5])) ? 'en' : 'np', t: timesOf_(r) };
+  return { s: String(r[2]), n: String(r[3]), c: /^y/i.test(String(r[4])) ? 1 : 0, l: /^y/i.test(String(r[5])) ? 'en' : 'np', t: timesOf_(r) };
 }
 
 function doGet(e) {
@@ -141,6 +142,7 @@ function doPost(e) {
     }
     if (d.action === 'times' || d.action === 'set') {
       if (!row) return json_({ error: 'missing' });
+      if (d.side && /^(groom|bride|reception)$/.test(d.side)) sheet.getRange(row, 3).setValue(d.side);
       if ('name' in d) sheet.getRange(row, 4).setValue(text_(d.name, 80));
       if ('chu' in d) sheet.getRange(row, 5).setValue(d.chu ? 'Yes' : '');
       if ('english' in d) sheet.getRange(row, 6).setValue(d.english ? 'Yes' : '');

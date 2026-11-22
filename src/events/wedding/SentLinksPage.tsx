@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { readLink, savedKey } from '../../envelope/guest'
 import { reception } from '../reception/content'
 import { wedding } from './content'
-import { API, callApi, colon, defaultsFor, KEY_STORE, Label, LETTER, readKey, SIDES, TimePicker, usePageLook, type Saved, type Side } from './Settings'
+import { API, callApi, defaultsFor, KEY_STORE, Label, LETTER, readKey, SIDES, TimePicker, usePageLook, type Saved, type Side } from './Settings'
 import { fromLetters, sayTime, type PartKey } from './times'
 
 // Sent links (/wedding/settings/sent, reached from the link maker): paste a link already sent to see what it
@@ -125,30 +125,33 @@ function SentLinks({ passcode, setPasscode, version }: { passcode: string; setPa
 }
 
 // What can be changed on a sent link; its card reads these from the guest sheet when it opens.
-type Details = { name: string; chu: boolean; english: boolean; times: Record<PartKey, string> }
-const same = (a: Details, b: Details, parts: readonly PartKey[]) =>
-  a.name.trim() === b.name.trim() && a.chu === b.chu && a.english === b.english && parts.every((k) => a.times[k] === b.times[k])
+type Details = { side: Side; name: string; chu: boolean; english: boolean; times: Record<PartKey, string> }
+const partsOf = (side: string) => SIDES.find((s) => s.key === side)?.parts ?? []
+const same = (a: Details, b: Details) =>
+  a.side === b.side && a.name.trim() === b.name.trim() && a.chu === b.chu && a.english === b.english && partsOf(a.side).every((k) => a.times[k] === b.times[k])
 // The sheet's answer ({n, c, l, t} or a list row) → Details, filling any missing time from what's shown now.
-function detailsFrom(r: { n?: string; name?: string; c?: number; chu?: boolean; l?: string; english?: boolean; t?: Record<string, string> }, parts: readonly PartKey[], fallback: Details): Details {
+function detailsFrom(r: { s?: string; side?: string; n?: string; name?: string; c?: number; chu?: boolean; l?: string; english?: boolean; t?: Record<string, string> }, fallback: Details): Details {
   const t = fromLetters(r.t ?? {})
+  const named = r.s ?? r.side
+  const side = (SIDES.some((x) => x.key === named) ? named : fallback.side) as Side
+  const parts = partsOf(side)
   return {
+    side,
     name: String(r.n ?? r.name ?? fallback.name),
     chu: r.c !== undefined ? r.c === 1 : (r.chu ?? fallback.chu),
     english: r.l !== undefined ? r.l === 'en' : (r.english ?? fallback.english),
-    times: Object.fromEntries(parts.map((k) => [k, t[k] ?? fallback.times[k]])) as Record<PartKey, string>,
+    times: { ...(side === fallback.side ? fallback.times : defaultsFor(side)), ...Object.fromEntries(parts.filter((k) => t[k]).map((k) => [k, t[k]])) } as Record<PartKey, string>,
   }
 }
 
 // Change a link's receiver name, चु: stamp, language and times, and save them to the guest sheet.
 function Editor({
   initial,
-  parts,
   save,
   passcode,
   openLink,
 }: {
   initial: Details
-  parts: readonly PartKey[]
   save: (d: Details, key: string) => Promise<{ ok: boolean; passcode?: boolean }>
   passcode: string
   openLink?: string
@@ -162,7 +165,8 @@ function Editor({
     setState(null)
   }
   const key = passcode || typed.trim()
-  const changed = !same(d, initial, parts)
+  const parts = partsOf(d.side)
+  const changed = !same(d, initial)
   const store = async () => {
     setState('saving')
     try {
@@ -174,6 +178,23 @@ function Editor({
   }
   return (
     <div className="grid gap-3">
+      <div>
+        <span className="mb-1 block text-sm font-semibold">Card</span>
+        <div className="grid grid-cols-3 gap-1.5">
+          {SIDES.map((x) => (
+            <button
+              key={x.key}
+              type="button"
+              aria-pressed={d.side === x.key}
+              onClick={() => edit({ side: x.key, times: { ...defaultsFor(x.key), ...d.times } })}
+              className={`rounded-xl border px-2 py-2 text-sm font-semibold ${d.side === x.key ? 'border-kagaz-ink bg-kagaz-ink text-[#fbf1ec]' : 'border-kagaz-gold/40 bg-white'}`}
+            >
+              {x.label.replace('’s side', '').replace(' only', '')}
+            </button>
+          ))}
+        </div>
+        {d.side !== initial.side && <p className="mt-1.5 text-xs opacity-70">The link will open the {SIDES.find((x) => x.key === d.side)!.label.toLowerCase()} card.</p>}
+      </div>
       <div>
         <span className="mb-1 block text-sm font-semibold">Receiver</span>
         <input
@@ -228,6 +249,13 @@ function Editor({
   )
 }
 
+// The times to keep in the sheet: only those that differ from the card's own (blank = the card's, so changing the
+// card's times in content.ts still reaches this link), and none for parts its card doesn't show.
+const pick = (d: Details) =>
+  Object.fromEntries(
+    (['janti', 'ceremony', 'reception'] as PartKey[]).map((k) => [k, partsOf(d.side).includes(k) && d.times[k] !== defaultsFor(d.side)[k] ? d.times[k] : '']),
+  ) as Record<PartKey, string>
+
 const rememberKey = (key: string, passcode: string, setPasscode: (k: string) => void) => {
   if (passcode) return
   try {
@@ -242,14 +270,11 @@ function SentLink({ saved, passcode, onChange }: { saved: Saved; passcode: strin
   const side = sideOf(saved.side)
   const parts = useMemo(() => side?.parts ?? (Object.keys(LETTER) as PartKey[]).filter((k) => saved.t[LETTER[k]]), [side, saved.t])
   const [open, setOpen] = useState(false)
-  const initial = useMemo(
-    () => detailsFrom(saved, parts, { name: '', chu: false, english: false, times: { ...defaultsFor(saved.side), ...Object.fromEntries(parts.map((k) => [k, saved.t[LETTER[k]] ? colon(saved.t[LETTER[k]]) : defaultsFor(saved.side)[k]])) } }),
-    [saved, parts],
-  )
+  const initial = useMemo(() => detailsFrom(saved, { side: (side?.key ?? 'groom') as Side, name: '', chu: false, english: false, times: defaultsFor(saved.side) }), [saved, side])
   const made = new Date(saved.made)
   const save = async (d: Details, key: string) => {
-    const r = await callApi({ key, action: 'set', id: saved.id, name: d.name, chu: d.chu, english: d.english, times: d.times })
-    if (r.ok) onChange({ ...saved, name: String(r.n), chu: r.c === 1, english: r.l === 'en', t: r.t ?? {} })
+    const r = await callApi({ key, action: 'set', id: saved.id, side: d.side, name: d.name, chu: d.chu, english: d.english, times: pick(d) })
+    if (r.ok) onChange({ ...saved, side: String(r.s ?? d.side), name: String(r.n), chu: r.c === 1, english: r.l === 'en', t: r.t ?? {} })
     return { ok: Boolean(r.ok), passcode: r.error === 'passcode' }
   }
 
@@ -277,7 +302,7 @@ function SentLink({ saved, passcode, onChange }: { saved: Saved; passcode: strin
       </button>
       {open && (
         <div className="mt-3 border-t border-kagaz-gold/30 pt-3">
-          <Editor initial={initial} parts={parts} save={save} passcode={passcode} openLink={saved.link || undefined} />
+          <Editor initial={initial} save={save} passcode={passcode} openLink={saved.link || undefined} />
         </div>
       )}
     </div>
@@ -293,7 +318,7 @@ function sideOfPath(path: string): Side | null {
   return null
 }
 
-type Pasted = { side: Side; key: string; details: Details; inSheet: boolean; link: string }
+type Pasted = { key: string; details: Details; inSheet: boolean; link: string }
 
 // Paste any personal link already sent (old ?g= ones too): see what it carries now, and change it. The change is
 // kept in the guest sheet's "Sent links" tab under the link's id (or its whole code), which the card reads.
@@ -320,13 +345,14 @@ function PastedLink({ passcode, setPasscode, onSaved }: { passcode: string; setP
     const key = savedKey(data)
     if (!side) return setProblem('That isn’t a wedding or reception invite link.')
     if (!key) return setProblem('That’s the plain card (no guest code), so there’s nothing personal to change.')
-    const parts = SIDES.find((s) => s.key === side)!.parts
+    const parts = partsOf(side)
     const carried = fromLetters(data.times)
     const fromLink: Details = {
+      side,
       name: data.guest?.name ?? '',
       chu: data.guest?.chu ?? false,
       english: data.lang === 'en',
-      times: Object.fromEntries(parts.map((k) => [k, carried[k] ?? defaultsFor(side)[k]])) as Record<PartKey, string>,
+      times: { ...defaultsFor(side), ...Object.fromEntries(parts.filter((k) => carried[k]).map((k) => [k, carried[k]])) } as Record<PartKey, string>,
     }
     let live = true
     setLoading(true)
@@ -336,7 +362,8 @@ function PastedLink({ passcode, setPasscode, onSaved }: { passcode: string; setP
       .then((d) => {
         if (!live) return
         const inSheet = Boolean(d && d.t)
-        setFound({ side, key, details: inSheet ? detailsFrom(d, parts, fromLink) : fromLink, inSheet, link: raw })
+        // A saved row's blank time is the card's own (not the one the link carries).
+        setFound({ key, details: inSheet ? detailsFrom(d, { ...fromLink, times: defaultsFor(d.s ?? side) }) : fromLink, inSheet, link: raw })
         setLoading(false)
       })
     return () => {
@@ -344,13 +371,12 @@ function PastedLink({ passcode, setPasscode, onSaved }: { passcode: string; setP
     }
   }, [text])
 
-  const parts = found ? SIDES.find((s) => s.key === found.side)!.parts : []
   const save = async (d: Details, key: string) => {
     if (!found) return { ok: false }
-    const r = await callApi({ key, action: 'set', id: found.key, side: found.side, name: d.name, chu: d.chu, english: d.english, times: d.times, link: found.link })
+    const r = await callApi({ key, action: 'set', id: found.key, side: d.side, name: d.name, chu: d.chu, english: d.english, times: pick(d), link: found.link })
     if (r.ok) {
       rememberKey(key, passcode, setPasscode)
-      setFound({ ...found, details: detailsFrom(r, parts, d), inSheet: true })
+      setFound({ ...found, details: detailsFrom(r, d), inSheet: true })
       onSaved()
     }
     return { ok: Boolean(r.ok), passcode: r.error === 'passcode' }
@@ -371,9 +397,9 @@ function PastedLink({ passcode, setPasscode, onSaved }: { passcode: string; setP
       {found && (
         <div className="mt-3 grid gap-3">
           <p className="text-sm opacity-75">
-            {SIDES.find((s) => s.key === found.side)!.label} · {found.inSheet ? 'changed before (from Sent links)' : 'as sent'}
+            {SIDES.find((s) => s.key === found.details.side)!.label} · {found.inSheet ? 'changed before (from Sent links)' : 'as sent'}
           </p>
-          <Editor initial={found.details} parts={parts} save={save} passcode={passcode} openLink={found.link} />
+          <Editor initial={found.details} save={save} passcode={passcode} openLink={found.link} />
         </div>
       )}
     </section>

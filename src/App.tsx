@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useState, type ComponentType } from 'react'
 import { LangProvider } from './components/LangProvider'
 import { Envelope } from './envelope/Envelope'
 import { readGuest } from './envelope/guest'
-import { savedRow } from './envelope/saved'
+import { followMove, savedRow } from './envelope/saved'
 import { resolve, type Side } from './events'
 import { route } from './route'
 
@@ -50,6 +50,7 @@ function Shell({ event, side }: { event: string; side: Side }) {
   const savedLinks = (text as { savedLinks?: string }).savedLinks
   const [guest, setGuest] = useState(() => readGuest(location.search + location.hash))
   useEffect(() => {
+    followMove(savedLinks)
     let live = true
     savedRow(savedLinks).then((row) => live && row && setGuest(row.guest))
     return () => {

@@ -52,12 +52,13 @@ export function timesForLink(times: Partial<Record<PartKey, string>>, defaults: 
   )
 }
 
-/** This page's times by part: the link's own at once, then its saved row's (from the guest sheet) when they arrive. */
+/** This page's times by part: the link's own at once, then its saved row's (from the guest sheet) when they arrive.
+ *  A saved row replaces the link's times: a time it leaves blank is the card's own. */
 export function useTimes(savedLinksUrl: string) {
   const [times, setTimes] = useState(() => readTimes(location.search + location.hash))
   useEffect(() => {
     let live = true
-    savedRow(savedLinksUrl).then((row) => live && row && setTimes((now) => ({ ...now, ...fromLetters(row.times) })))
+    savedRow(savedLinksUrl).then((row) => live && row && setTimes(fromLetters(row.times)))
     return () => {
       live = false
     }

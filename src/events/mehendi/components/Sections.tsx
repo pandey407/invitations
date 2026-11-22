@@ -131,6 +131,7 @@ export function Details() {
           <Label text={invite.details.dateTimeLabel} />
           <Line strong>{t(invite.dateLabel)}</Line>
           <Line>{t(invite.time)}</Line>
+          <p className={`mt-2 font-script leading-snug text-gold ${en ? 'text-[6cqw]' : 'text-[4.6cqw] font-bold'}`}>{t(invite.timeNote)}</p>
         </div>
         <div>
           <Label text={invite.details.venueLabel} />
