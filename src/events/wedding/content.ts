@@ -98,7 +98,7 @@ export const wedding = {
       onwards: false,
       place: { np: 'निजी निवास', en: 'Niji Niwas' },
       address: { np: 'रानीबारी, काठमाडौं', en: 'Ranibari, Kathmandu' },
-      mapLink: 'https://www.google.com/maps/search/?api=1&query=27.7311005%2C85.3202482', // Niji Niwas: a pin (the shared links only saved a map view)
+      mapLink: 'https://maps.app.goo.gl/PcqW7XiEwzUpXaWW9', // Niji Niwas: a dropped pin (27.732110, 85.319807)
     },
     ceremony: {
       title: { np: 'शुभ विवाह', en: 'Wedding Ceremony' },
